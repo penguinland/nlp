@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wall #-}
+
 module Lexer where
 
 import Data.Set
@@ -27,6 +29,7 @@ wordToNodes word next =
   in
     if length result == 0 then error ("unknown word: " ++ word) else result
 
+makePartsOfSpeech :: [String -> [Node] -> [Node]]
 makePartsOfSpeech = [ makeNoun
                     , makeArticle
                     , makeIntVerb
