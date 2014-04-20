@@ -6,6 +6,17 @@ import qualified Grammar
 import qualified Lexer
 import qualified Parser
 
+isAmbiguous :: [Grammar.Node] -> Bool
+isAmbiguous =
+  let
+    isAmbiguous' [Grammar.Node Grammar.EOF _ _] = False
+    isAmbiguous' (_ : _ : _) = True
+    isAmbiguous' [Grammar.Node (Grammar.FullSentence _) _ children] =
+        isAmbiguous' children
+    isAmbiguous' _ = True
+  in
+    isAmbiguous' . Parser.extractSentences
+
 -- I've gotten some example text appropriate for first grade reading levels from
 -- http://www.superteacherworksheets.com/1st-comprehension.html
 
@@ -17,6 +28,11 @@ results1partial :: [Grammar.Node]
 results1partial = Lexer.lexNodes text1
 results1 :: [Grammar.Node]
 results1 = Parser.extractSentences results1partial
+
+text1basic :: String
+text1basic = "my dog found a yellow ball ."
+results1basic :: [Grammar.Node]
+results1basic = Lexer.lexNodes text1basic
 
 text1half :: String
 text1half = "he ran after the blue ball when I threw it ."

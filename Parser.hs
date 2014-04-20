@@ -3,6 +3,7 @@
 module Parser where
 
 import Grammar
+import GrammarFilters
 
 applyRules :: Node -> [Node]
 applyRules eof@(Node EOF _ _) = [eof]
@@ -29,10 +30,13 @@ applyAllRules :: [Node] -> [Node]
 applyAllRules = concatMap applyRules
 
 extractSentences :: [Node] -> [Node]
-extractSentences = concatMap extractSentencesFromNode
-
-extractSentencesFromNode :: Node -> [Node]
-extractSentencesFromNode eof@(Node EOF _ _) = [eof]
-extractSentencesFromNode (Node sentence@(FullSentence _) rules rest) =
-    [Node sentence rules (extractSentences rest)]
-extractSentencesFromNode _ = []
+extractSentences nodes =
+  let
+    sentenceNodes = filter (liftFilter isFullSentence) nodes
+    extractChildSentences eof@(Node EOF _ _) = eof
+    extractChildSentences (Node sentence rules rest) =
+        Node sentence rules (extractSentences rest)
+  in
+    map extractChildSentences (if null sentenceNodes
+                               then nodes
+                               else sentenceNodes)
