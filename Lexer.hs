@@ -53,16 +53,18 @@ normalNouns = fromList ["ball", "cat", "dog"]
 isNoun :: String -> Bool
 isNoun = flip member normalNouns
 
-intransitiveVerbs :: Set String
-intransitiveVerbs = fromList ["played", "ran", "run", "runs"]
+normalIntransitiveVerbs :: Set String
+normalIntransitiveVerbs = fromList ["play", "played", "ran", "run"]
+-- TODO: either remove this or fix it in some way.
 isIntVerb :: String -> Bool
-isIntVerb = flip member intransitiveVerbs
+isIntVerb = flip member normalIntransitiveVerbs
 
-transitiveVerbs :: Set String
-transitiveVerbs = fromList [
-    "chew", "chewed", "eats", "found", "loves", "play", "threw", "was"]
+normalTransitiveVerbs :: Set String
+normalTransitiveVerbs = fromList [
+    "chew", "chewed", "eat", "found", "love", "play", "threw", "was"]
+-- TODO: either remove this or fix it in some way.
 isTransVerb :: String -> Bool
-isTransVerb = flip member transitiveVerbs
+isTransVerb = flip member normalTransitiveVerbs
 
 adjectives :: Set String
 adjectives = fromList ["big", "blue", "hungry", "red", "yellow"]
@@ -92,6 +94,7 @@ makeNoun word next =
   in
     if member word normalNouns
     then [Node (Noun word singularNounAttributes) nounRules next]
+    -- TODO: fix this for nouns that end is 's'.
     else if last word == 's' && member (init word) normalNouns
     then [Node (Noun word pluralNounAttributes) nounRules next]
     else []
@@ -100,11 +103,23 @@ makeArticle :: String -> [Node] -> [Node]
 makeArticle = makeNode isArticle Article articleRules
 
 makeIntVerb :: String -> [Node] -> [Node]
-makeIntVerb = makeNode isIntVerb Verb intVerbRules
+makeIntVerb word next =
+    if member word normalIntransitiveVerbs
+    then [Node (Verb word) intVerbRules next]
+    -- TODO: fix this for verbs that end in 's'.
+    else if last word == 's' && member (init word) normalIntransitiveVerbs
+    then [Node (Verb word) intVerbRules next]
+    else []
 
 -- TODO: Can you think of a verb that *requires* a direct object?
 makeTransVerb :: String -> [Node] -> [Node]
-makeTransVerb = makeNode isTransVerb Verb (transVerbRules ++ intVerbRules)
+makeTransVerb word next =
+    if member word normalTransitiveVerbs
+    then [Node (Verb word) (intVerbRules ++ transVerbRules) next]
+    -- TODO: fix this for verbs that end in 's'.
+    else if last word == 's' && member (init word) normalTransitiveVerbs
+    then [Node (Verb word) (intVerbRules ++ transVerbRules) next]
+    else []
 
 makeAdjective :: String -> [Node] -> [Node]
 makeAdjective = makeNode isAdjective Adjective adjectiveRules

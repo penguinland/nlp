@@ -43,7 +43,7 @@ results1 :: [Node]
 results1 = extractSentences results1partial
 
 text1basic :: String
-text1basic = "my dog found a yellow ball ."
+text1basic = "my dogs found a yellow ball ."
 results1basic :: [Node]
 results1basic = lexNodes text1basic
 
