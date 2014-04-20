@@ -48,23 +48,15 @@ isArticle :: String -> Bool
 isArticle = flip member articles
 
 normalNouns :: Set String
-normalNouns = fromList ["ball", "cat", "dog"]
--- TODO: either remove this or fix it in some way.
-isNoun :: String -> Bool
-isNoun = flip member normalNouns
+normalNouns = fromList ["ball", "carrot", "cat", "dip", "dog", "lace", "plate",
+    "refrigerator", "sink", "snack"]
 
 normalIntransitiveVerbs :: Set String
 normalIntransitiveVerbs = fromList ["play", "played", "ran", "run"]
--- TODO: either remove this or fix it in some way.
-isIntVerb :: String -> Bool
-isIntVerb = flip member normalIntransitiveVerbs
 
 normalTransitiveVerbs :: Set String
 normalTransitiveVerbs = fromList [
-    "chew", "chewed", "eat", "found", "love", "play", "threw", "was"]
--- TODO: either remove this or fix it in some way.
-isTransVerb :: String -> Bool
-isTransVerb = flip member normalTransitiveVerbs
+    "chew", "chewed", "eat", "found", "help", "love", "play", "threw", "was"]
 
 adjectives :: Set String
 adjectives = fromList ["big", "blue", "hungry", "red", "yellow"]
@@ -72,7 +64,7 @@ isAdjective :: String -> Bool
 isAdjective = flip member adjectives
 
 prepositions :: Set String
-prepositions = fromList ["after", "to", "when", "with"]
+prepositions = fromList ["after", "with"]
 isPreposition :: String -> Bool
 isPreposition = flip member prepositions
 
@@ -132,6 +124,12 @@ makePreposition :: String -> [Node] -> [Node]
 -- phrase.
 makePreposition "when" next =
     [Node (Preposition "when" permissivePreposition{canContainNoun = False})
+     prepositionRules next]
+makePreposition "of" next =
+    [Node (Preposition "of" permissivePreposition{canContainSentence = False})
+     prepositionRules next]
+makePreposition "in" next =
+    [Node (Preposition "in" permissivePreposition{canContainSentence = False})
      prepositionRules next]
 -- "To" might be an infinitive.
 makePreposition "to" next =
