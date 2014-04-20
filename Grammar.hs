@@ -41,7 +41,7 @@ data Grammar =
              | Noun String
              | Adjective String
              | Verb String
-             | Preposition String PrepositionAttributes
+             | Preposition String-- PrepositionAttributes
              | Period
              | EOF
     deriving(Show, Eq)
