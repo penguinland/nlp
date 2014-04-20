@@ -48,9 +48,12 @@ data Grammar =
              | EOF
     deriving(Show, Eq)
 
+data Person = First | Second | Third deriving (Eq, Show)
+
 data NounAttributes = NounAttributes { canBeSubject :: Bool
                                      , canBeObject :: Bool
-                                     , isPlural :: Bool } deriving (Eq)
+                                     , isPlural :: Bool
+                                     , person :: Person } deriving (Eq)
 instance Show NounAttributes where
     show _ = ""  -- Don't bother showing the attributes when showing a Grammar
 

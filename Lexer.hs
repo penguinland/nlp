@@ -81,8 +81,8 @@ makeNode isType nodeType rules word next =
 makeNoun :: String -> [Node] -> [Node]
 makeNoun word next =
   let
-    singularNounAttributes = NounAttributes True True False
-    pluralNounAttributes = NounAttributes True True True
+    singularNounAttributes = NounAttributes True True False Third
+    pluralNounAttributes = NounAttributes True True True Third
   in
     if member word normalNouns
     then [Node (Noun word singularNounAttributes) nounRules next]
@@ -142,18 +142,22 @@ makePreposition word next =
 makeMisc :: String -> [Node] -> [Node]
 makeMisc "I" next = [Node (Noun "I" (NounAttributes { canBeSubject = True
                                                     , canBeObject = False
-                                                    , isPlural = False}))
+                                                    , isPlural = False
+                                                    , person = First}))
                           nounRules next]
 makeMisc "he" next = [Node (Noun "he" (NounAttributes { canBeSubject = True
                                                       , canBeObject = False
-                                                      , isPlural = False}))
+                                                      , isPlural = False
+                                                      , person = Third}))
                            nounRules next]
 makeMisc "me" next = [Node (Noun "me" (NounAttributes { canBeSubject = False
                                                       , canBeObject = True
-                                                      , isPlural = False}))
+                                                      , isPlural = False
+                                                      , person = First}))
                            nounRules next]
 makeMisc "it" next = [Node (Noun "it" (NounAttributes { canBeSubject = True
                                                       , canBeObject = True
-                                                      , isPlural = False}))
+                                                      , isPlural = False
+                                                      , person = Third}))
                            nounRules next]
 makeMisc _ _ = []
