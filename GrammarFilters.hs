@@ -80,3 +80,11 @@ instance Attributes NounAttributes where
     checkAttrs _ other =
         error ("Tried testing non-noun grammar " ++ show other ++
                " for noun-like properties")
+
+instance Attributes PrepositionAttributes where
+    checkAttrs test (Preposition _ attributes = test attributes
+    checkAttrs test (PrepositionalPhrase preposition _) =
+        checkAttrs test preposition
+    checkAttrs _ other =
+        error ("Tried testing non-preposition grammar " ++ show other ++
+               " for preposition-like properties")
