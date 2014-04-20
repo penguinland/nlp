@@ -48,9 +48,6 @@ data Grammar =
              | EOF
     deriving(Show, Eq)
 
-class Attributes a where
-    checkAttrs :: (a -> Bool) -> (Grammar -> Bool)
-
 data NounAttributes = NounAttributes { canBeSubject :: Bool
                                      , canBeObject :: Bool } deriving (Eq)
 instance Show NounAttributes where
@@ -59,21 +56,7 @@ instance Show NounAttributes where
 data PrepositionAttributes = PrepositionAttributes { canModifyVerb :: Bool
                                                    , canModifyNoun :: Bool
                                                    , canContainSentence :: Bool
-                                                   , canContainPredicate :: Bool
+                                                   , canContainNoun :: Bool
                                                    } deriving (Eq)
 instance Show PrepositionAttributes where
     show _ = ""  -- Don't bother showing the attributes when showing a Grammar
-
-{-
-prepositionFollowsVerb :: Node -> Bool
-prepositionFollowsVerb
-        (Node (PrepositionalPhrase (Preposition _ attributes) _)) =
-    canFollowVerb attributes
-prepositionFollowsVerb _ = False
-
-prepositionFollowsNoun :: Node -> Bool
-prepositionFollowsNoun
-        (Node (PrepositionalPhrase (Preposition _ attributes) _)) =
-    canFollowNoun attributes
-prepositionFollowsNoun _ = False
--}

@@ -83,12 +83,13 @@ rawPredicateFromIntVerb =
 
 prepositionalPhraseFromANP :: Rule
 prepositionalPhraseFromANP =
-    makeRule2 isPreposition isANP PrepositionalPhrase prepositionalPhraseRules
+    makeRule2 (liftM2 (&&) isPreposition (checkAttrs canContainNoun))
+        isANP PrepositionalPhrase prepositionalPhraseRules
 
 prepositionalPhraseFromSentence :: Rule
 prepositionalPhraseFromSentence =
-    makeRule2
-        isPreposition isSentence PrepositionalPhrase prepositionalPhraseRules
+    makeRule2 (liftM2 (&&) isPreposition (checkAttrs canContainSentence))
+        isSentence PrepositionalPhrase prepositionalPhraseRules
 
 rawPredicateFromTransVerb :: Rule
 rawPredicateFromTransVerb =
@@ -138,7 +139,7 @@ predicateWithPrepositionalPhrase =
     toPredicate _ _ = error ("Unexpected nodes when merging predicate and " ++
                              "prepositional phrase!")
     isAcceptablePreposition =
-        liftM2 (&&) isPrepositionalPhrase (checkAttrs canFollowVerb)
+        liftM2 (&&) isPrepositionalPhrase (checkAttrs canModifyVerb)
   in
     makeRule2 isPredicate isAcceptablePreposition toPredicate predicateRules
 
@@ -150,5 +151,7 @@ anpWithPrepositionalPhrase =
         ArticledNounPhrase a n (prepPhrases ++ [prepPhrase])
     toANP _ _ =
         error "Unexpected nodes when merging ANP and prepositional phrase!"
+    isAcceptablePreposition =
+        liftM2 (&&) isPrepositionalPhrase (checkAttrs canModifyNoun)
   in
-    makeRule2 isANP isPrepositionalPhrase toANP anpRules
+    makeRule2 isANP isAcceptablePreposition toANP anpRules

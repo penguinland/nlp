@@ -71,6 +71,9 @@ isEOF :: Grammar -> Bool
 isEOF EOF = True
 isEOF _ = False
 
+class Attributes a where
+    checkAttrs :: (a -> Bool) -> (Grammar -> Bool)
+
 instance Attributes NounAttributes where
     checkAttrs test (Noun _ attributes) = test attributes
     checkAttrs test (NounPhrase _ noun) = checkAttrs test noun
@@ -82,7 +85,7 @@ instance Attributes NounAttributes where
                " for noun-like properties")
 
 instance Attributes PrepositionAttributes where
-    checkAttrs test (Preposition _ attributes = test attributes
+    checkAttrs test (Preposition _ attributes) = test attributes
     checkAttrs test (PrepositionalPhrase preposition _) =
         checkAttrs test preposition
     checkAttrs _ other =
