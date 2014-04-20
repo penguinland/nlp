@@ -1,5 +1,7 @@
 module Lexer where
 
+import Data.Set
+
 import Grammar
 import qualified Parser
 import Rules
@@ -32,55 +34,40 @@ makePartsOfSpeech = [ makeNoun
                     , makeAdjective
                     , makePreposition]
 
+-- Yes, I know that many of these are possessive adjectives and not articles.
+-- However, they act like articles, so that's what I'm going to call it here. In
+-- particular, these are words that could be substituted for the word "the" in
+-- the phrase "the big yellow house" but could not be substituted for "big" or
+-- "yellow."
+articles :: Set String
+articles = fromList ["a", "another", "her", "his", "my", "the", "their"]
 isArticle :: String -> Bool
-isArticle "the" = True
-isArticle "a" = True
--- Yes, I know that "my" is a possessive adjective and not an article. However,
--- it acts like an article, so that's what I'm going to call it here.
-isArticle "my" = True
-isArticle "his" = True
-isArticle "her" = True
-isArticle "their" = True
--- Similarly for "another," which acts like an article even though it's not one.
-isArticle "another" = True
-isArticle _ = False
+isArticle = flip member articles
 
+nouns :: Set String
+nouns = fromList ["ball", "cat", "dog", "he", "it"]
 isNoun :: String -> Bool
-isNoun "cat" = True
-isNoun "dog" = True
-isNoun "ball" = True
-isNoun "it" = True
-isNoun "he" = True
-isNoun _ = False
+isNoun = flip member nouns
 
+intransitiveVerbs :: Set String
+intransitiveVerbs = ["played", "runs"]
 isIntVerb :: String -> Bool
-isIntVerb "runs" = True
-isIntVerb "played" = True
-isIntVerb _ = False
+isIntVerb = flip member intransitiveVerbs
 
+transitiveVerbs :: Set String
+transitiveVerbs = fromList ["chew", "chewed", "eats", "found", "loves", "play", "was"]
 isTransVerb :: String -> Bool
-isTransVerb "eats" = True
-isTransVerb "loves" = True
-isTransVerb "chewed" = True
-isTransVerb "chew" = True
-isTransVerb "found" = True
-isTransVerb "was" = True
-isTransVerb "play" = True
-isTransVerb _ = False
+isTransVerb = flip member transitiveVerbs
 
+adjectives :: Set String
+adjectives = fromList ["big", "blue", "hungry", "red", "yellow"]
 isAdjective :: String -> Bool
-isAdjective "yellow" = True
-isAdjective "red" = True
-isAdjective "blue" = True
-isAdjective "hungry" = True
-isAdjective "big" = True
-isAdjective _ = False
+isAdjective = flip member adjectives
 
+prepositions :: Set String
+prepositions = fromList ["to", "when", "with"]
 isPreposition :: String -> Bool
-isPreposition "to" = True
-isPreposition "with" = True
-isPreposition "when" = True
-isPreposition _ = False
+isPreposition = flip member prepositions
 
 addRule :: Node -> Rule -> Node
 addRule (Node grammar rules next) newRule = Node grammar (newRule : rules) next
