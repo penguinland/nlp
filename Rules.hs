@@ -41,37 +41,37 @@ periodRules :: [Rule]
 periodRules = []
 
 makeRule1 :: (Grammar -> Bool) -> (Grammar -> Grammar) -> [Rule] -> Rule
-makeRule1 isCorrectNode toNewGrammar nextRules =
+makeRule1 isCorrectGrammar toNewGrammar nextRules =
   let
     newRule (Node g _ next)
-      | isCorrectNode g = [Node (toNewGrammar g) nextRules next]
+      | isCorrectGrammar g = [Node (toNewGrammar g) nextRules next]
     newRule _ = []
   in
     newRule
 
-{-
-makeRule2 :: (Node -> Bool) -> (Node -> Bool) ->
+makeRule2 :: (Grammar -> Bool) -> (Grammar -> Bool) ->
              (Grammar -> Grammar -> Grammar) -> [Rule] -> Rule
-makeRule2 isCorrectFirstNode isCorrectSecondNode toNewGrammar nextRules =
+makeRule2 isCorrectGrammar1 isCorrectGrammar2 toNewGrammar nextRules =
   let
-    newRule (Node first _ others)
-      | isCorrectFirstNode first =
-            map (toNewNode first) . filter isCorrectSecondNode $ others
+    newRule (Node first _ seconds)
+      | isCorrectGrammar1 first =
+            map (toNewNode first) . filter (liftFilter isCorrectGrammar2) $
+                seconds
+    newRule _ = []
     toNewNode first (Node second _ next) =
         Node (toNewGrammar first second) nextRules next
   in
     newRule
--}
 
 infinitiveRule :: Rule
-infinitiveRule (Node to _ others) =
+infinitiveRule =
   let
-    toInfinitive :: Node -> Node
-    toInfinitive (Node predicate _ next) =
-        Node (ArticledNounPhrase Nothing (Infinitive to predicate) [])
-              anpRules next
+    isTo (Preposition "to") = True
+    isTo _ = False
+    toInfinitive to predicate =
+        ArticledNounPhrase Nothing (Infinitive to predicate) []
   in
-    map toInfinitive . filter (liftFilter isPredicate) $ others
+    makeRule2 isTo isPredicate toInfinitive anpRules
 
 predicateFromRawPredicate :: Rule
 predicateFromRawPredicate =
@@ -82,48 +82,26 @@ rawPredicateFromIntVerb =
     makeRule1 isVerb (\v -> RawPredicate v Nothing) rawPredicateRules
 
 prepositionalPhraseFromANP :: Rule
-prepositionalPhraseFromANP (Node p@(Preposition _) _ others) =
-  let
-    toPrepositionalPhrase :: Node -> Node
-    toPrepositionalPhrase (Node nounPhrase _ next) =
-        Node (PrepositionalPhrase p nounPhrase) prepositionalPhraseRules next
-  in
-    map toPrepositionalPhrase . filter (liftFilter isANP) $ others
-prepositionalPhraseFromANP _ = []
+prepositionalPhraseFromANP =
+    makeRule2 isPreposition isANP PrepositionalPhrase prepositionalPhraseRules
 
 prepositionalPhraseFromSentence :: Rule
-prepositionalPhraseFromSentence (Node p@(Preposition _) _ others) =
-  let
-    toPrepositionalPhrase :: Node -> Node
-    toPrepositionalPhrase (Node sentence _ next) =
-        Node (PrepositionalPhrase p sentence) prepositionalPhraseRules next
-  in
-    map toPrepositionalPhrase . filter (liftFilter isSentence) $ others
-prepositionalPhraseFromSentence _ = []
+prepositionalPhraseFromSentence =
+    makeRule2
+        isPreposition isSentence PrepositionalPhrase prepositionalPhraseRules
 
 rawPredicateFromTransVerb :: Rule
-rawPredicateFromTransVerb (Node v@(Verb _) _ others) =
-  let
-    toPredicate :: Node -> Node
-    toPredicate (Node nounPhrase _ next) =
-        Node (RawPredicate v (Just nounPhrase)) rawPredicateRules next
-  in
-    map toPredicate . filter (liftFilter isANP) $ others
-rawPredicateFromTransVerb _ = []
+rawPredicateFromTransVerb =
+    makeRule2 isVerb isANP (\v n -> RawPredicate v (Just n)) rawPredicateRules
 
 articledNounPhraseFromNounPhrase :: Rule
 articledNounPhraseFromNounPhrase =
     makeRule1 isNounPhrase (\n -> ArticledNounPhrase Nothing n []) anpRules
 
 articledNounPhraseFromArticle :: Rule
-articledNounPhraseFromArticle (Node a@(Article _) _ others) =
-  let
-    toANP :: Node -> Node
-    toANP (Node noun _ next) =
-        Node (ArticledNounPhrase (Just a) noun []) anpRules next
-  in
-    map toANP . filter (liftFilter isNounPhrase) $ others
-articledNounPhraseFromArticle _ = []
+articledNounPhraseFromArticle =
+    makeRule2 isArticle isNounPhrase (\a n -> ArticledNounPhrase (Just a) n [])
+        anpRules
 
 subjectFromANP :: Rule
 subjectFromANP =
@@ -134,62 +112,41 @@ nounPhraseFromNoun =
     makeRule1 isNoun (\n -> NounPhrase [] n) nounPhraseRules
 
 nounPhraseFromAdjective :: Rule
-nounPhraseFromAdjective (Node adjective@(Adjective _) _ others) =
+nounPhraseFromAdjective =
   let
-    toNounPhrase :: Node -> Node
-    toNounPhrase (Node (NounPhrase adjectives noun) _ next) =
-        Node (NounPhrase (adjective : adjectives) noun) nounPhraseRules next
-    toNounPhrase _ = error "Unexpected non-NounPhrase node!"
+    toNounPhrase adjective (NounPhrase adjectives noun) =
+        NounPhrase (adjective : adjectives) noun
+    toNounPhrase _ _ = error "Unexpected non-NounPhrase node!"
   in
-    map toNounPhrase . filter (liftFilter isNounPhrase) $ others
-nounPhraseFromAdjective _ = []
+    makeRule2 isAdjective isNounPhrase toNounPhrase nounPhraseRules
 
 sentenceFromSubject :: Rule
-sentenceFromSubject (Node s@(Subject _) _ others) =
-  let
-    toSentence :: Node -> Node
-    toSentence (Node predicate _ next) =
-        Node (Sentence s predicate) sentenceRules next
-  in
-    map toSentence . filter (liftFilter isPredicate) $ others
-sentenceFromSubject _ = []
+sentenceFromSubject =
+    makeRule2 isSubject isPredicate Sentence sentenceRules
 
 fullSentenceFromSentence :: Rule
-fullSentenceFromSentence (Node s@(Sentence _ _) _ others) =
-  let
-    toSentence :: Node -> Node
-    toSentence (Node Period _ next) =
-        Node (FullSentence s) fullSentenceRules next
-    toSentence _ = error "Unexpected non-Period node!"
-  in
-    map toSentence . filter (liftFilter isPeriod) $ others
-fullSentenceFromSentence _ = []
+fullSentenceFromSentence =
+    -- FullSentence doesn't store the period, so just gobble that argument.
+    makeRule2 isSentence isPeriod (curry fst . FullSentence) fullSentenceRules
 
 predicateWithPrepositionalPhrase :: Rule
-predicateWithPrepositionalPhrase
-    (Node (Predicate rawPredicate prepositionalPhrases) _ others) =
+predicateWithPrepositionalPhrase =
   let
-    toPredicate :: Node -> Node
-    toPredicate (Node prepositionalPhrase _ next) =
-        Node (Predicate rawPredicate
-                        -- Keep the order of the prepositional phrases.
-                        (prepositionalPhrases ++ [prepositionalPhrase]))
-             fullSentenceRules next
+    toPredicate (Predicate predicate prepPhrases) prepPhrase =
+        -- Keep the order of the prepositional phrases.
+        Predicate predicate (prepPhrases ++ [prepPhrase])
+    toPredicate _ _ = error ("Unexpected nodes when merging predicate and " ++
+                             "prepositional phrase!")
   in
-    map toPredicate . filter (liftFilter isPrepositionalPhrase) $ others
-predicateWithPrepositionalPhrase _ = []
+    makeRule2 isPredicate isPrepositionalPhrase toPredicate predicateRules
 
 anpWithPrepositionalPhrase :: Rule
-anpWithPrepositionalPhrase
-    (Node (ArticledNounPhrase article nounPhrase prepositionalPhrases)
-          _ others) =
+anpWithPrepositionalPhrase =
   let
-    toANP :: Node -> Node
-    toANP (Node prepositionalPhrase _ next) =
-        Node (ArticledNounPhrase article nounPhrase
-                        -- Keep the order of the prepositional phrases.
-                        (prepositionalPhrases ++ [prepositionalPhrase]))
-             anpRules next
+    toANP (ArticledNounPhrase a n prepPhrases) prepPhrase =
+        -- Keep the order of the prepositional phrases.
+        ArticledNounPhrase a n (prepPhrases ++ [prepPhrase])
+    toANP _ _ =
+        error "Unexpected nodes when merging ANP and prepositional phrase!"
   in
-    map toANP . filter (liftFilter isPrepositionalPhrase) $ others
-anpWithPrepositionalPhrase _ = []
+    makeRule2 isANP isPrepositionalPhrase toANP anpRules
