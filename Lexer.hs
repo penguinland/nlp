@@ -92,14 +92,14 @@ makeArticle = makeNode isArticle Article articleRules
 makeIntVerb :: String -> [Node] -> [Node]
 makeIntVerb = makeNode isIntVerb Verb intVerbRules
 
--- Can you think of a verb that *requires* a direct object?
+-- TODO: Can you think of a verb that *requires* a direct object?
 makeTransVerb :: String -> [Node] -> [Node]
 makeTransVerb = makeNode isTransVerb Verb (transVerbRules ++ intVerbRules)
 
 makeAdjective :: String -> [Node] -> [Node]
 makeAdjective = makeNode isAdjective Adjective adjectiveRules
 
--- TODO: remove this.
+-- TODO: refactor this, maybe?.
 permissivePreposition :: PrepositionAttributes
 permissivePreposition = PrepositionAttributes True True True True
 makePreposition :: String -> [Node] -> [Node]
@@ -108,6 +108,7 @@ makePreposition :: String -> [Node] -> [Node]
 makePreposition "when" next =
     [Node (Preposition "when" permissivePreposition{canContainNoun = False})
      prepositionRules next]
+-- "To" might be an infinitive.
 makePreposition "to" next =
     [Node (Preposition "to" permissivePreposition)
      (infinitiveRule : prepositionRules) next]
