@@ -73,6 +73,9 @@ isEOF _ = False
 
 class Attributes a where
     checkAttrs :: (a -> Bool) -> (Grammar -> Bool)
+    checkAttrs = getAttrs
+    getAttrs :: (a -> b) -> (Grammar -> b)
+    getAttrs = undefined
 
 instance Attributes NounAttributes where
     checkAttrs test (Noun _ attributes) = test attributes
@@ -85,17 +88,17 @@ instance Attributes NounAttributes where
                " for noun-like properties")
 
 instance Attributes VerbAttributes where
-    checkAttrs test (Verb _ attributes) = test attributes
-    checkAttrs test (RawPredicate verb _) = checkAttrs test verb
-    checkAttrs test (Predicate rawPred _) = checkAttrs test rawPred
-    checkAttrs _ other =
+    getAttrs test (Verb _ attributes) = test attributes
+    getAttrs test (RawPredicate verb _) = getAttrs test verb
+    getAttrs test (Predicate rawPred _) = getAttrs test rawPred
+    getAttrs _ other =
         error ("Tried testing non-verb grammar " ++ show other ++
                " for verb-like properties")
 
 instance Attributes PrepositionAttributes where
-    checkAttrs test (Preposition _ attributes) = test attributes
-    checkAttrs test (PrepositionalPhrase preposition _) =
-        checkAttrs test preposition
-    checkAttrs _ other =
+    getAttrs test (Preposition _ attributes) = test attributes
+    getAttrs test (PrepositionalPhrase preposition _) =
+        getAttrs test preposition
+    getAttrs _ other =
         error ("Tried testing non-preposition grammar " ++ show other ++
                " for preposition-like properties")
