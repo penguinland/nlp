@@ -4,7 +4,6 @@ module GrammarFilters where
 
 import Grammar
 
--- TODO: remove this when you're done refactoring
 liftFilter :: (Grammar -> Bool) -> Node -> Bool
 liftFilter test (Node g _ _) = test g
 
