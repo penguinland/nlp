@@ -56,8 +56,8 @@ data NounAttributes = NounAttributes { canBeSubject :: Bool
 instance Show NounAttributes where
     show _ = ""  -- Don't bother showing the attributes when showing a Grammar
 
-data PrepositionAttributes = PrepositionAttributes { canFollowVerb :: Bool
-                                                   , canFollowNoun :: Bool
+data PrepositionAttributes = PrepositionAttributes { canModifyVerb :: Bool
+                                                   , canModifyNoun :: Bool
                                                    , canContainSentence :: Bool
                                                    , canContainPredicate :: Bool
                                                    } deriving (Eq)

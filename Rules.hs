@@ -137,8 +137,10 @@ predicateWithPrepositionalPhrase =
         Predicate predicate (prepPhrases ++ [prepPhrase])
     toPredicate _ _ = error ("Unexpected nodes when merging predicate and " ++
                              "prepositional phrase!")
+    isAcceptablePreposition =
+        liftM2 (&&) isPrepositionalPhrase (checkAttrs canFollowVerb)
   in
-    makeRule2 isPredicate isPrepositionalPhrase toPredicate predicateRules
+    makeRule2 isPredicate isAcceptablePreposition toPredicate predicateRules
 
 anpWithPrepositionalPhrase :: Rule
 anpWithPrepositionalPhrase =
