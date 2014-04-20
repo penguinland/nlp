@@ -102,7 +102,7 @@ subjectFromANP (Node n@(ArticledNounPhrase _ _ _) _ next) =
 subjectFromANP _ = []
 
 nounPhraseFromNoun :: Rule
-nounPhraseFromNoun (Node n@(Noun _) _ next) =
+nounPhraseFromNoun (Node n@(Noun _ _) _ next) =
     [Node (NounPhrase [] n) nounPhraseRules next]
 nounPhraseFromNoun _ = []
 

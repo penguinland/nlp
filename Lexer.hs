@@ -50,12 +50,13 @@ isNoun :: String -> Bool
 isNoun = flip member nouns
 
 intransitiveVerbs :: Set String
-intransitiveVerbs = fromList ["played", "runs"]
+intransitiveVerbs = fromList ["played", "ran", "run", "runs"]
 isIntVerb :: String -> Bool
 isIntVerb = flip member intransitiveVerbs
 
 transitiveVerbs :: Set String
-transitiveVerbs = fromList ["chew", "chewed", "eats", "found", "loves", "play", "was"]
+transitiveVerbs = fromList [
+    "chew", "chewed", "eats", "found", "loves", "play", "threw", "was"]
 isTransVerb :: String -> Bool
 isTransVerb = flip member transitiveVerbs
 
@@ -65,7 +66,7 @@ isAdjective :: String -> Bool
 isAdjective = flip member adjectives
 
 prepositions :: Set String
-prepositions = fromList ["to", "when", "with"]
+prepositions = fromList ["after", "to", "when", "with"]
 isPreposition :: String -> Bool
 isPreposition = flip member prepositions
 
@@ -80,7 +81,7 @@ makeNode isType nodeType rules word next =
     else []
 
 makeNoun :: String -> [Node] -> [Node]
-makeNoun = makeNode isNoun Noun nounRules
+makeNoun = makeNode isNoun (\w -> Noun w (NounAttributes True True)) nounRules
 
 makeArticle :: String -> [Node] -> [Node]
 makeArticle = makeNode isArticle Article articleRules

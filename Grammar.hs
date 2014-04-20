@@ -38,13 +38,26 @@ data Grammar =
             -- PrepositionalPhrase Preposition ArticledNounPhrase
              | PrepositionalPhrase Grammar Grammar
              | Article String
-             | Noun String
+             | Noun String NounAttributes
              | Adjective String
              | Verb String
              | Preposition String-- PrepositionAttributes
              | Period
              | EOF
     deriving(Show, Eq)
+
+data NounAttributes = NounAttributes { canBeSubject :: Bool
+                                     , canBeObject :: Bool } deriving (Show, Eq)
+testNoun :: (NounAttributes -> Bool) -> Grammar -> Bool
+testNoun test (Noun _ attributes) = test attributes
+testNoun test (NounPhrase _ noun) = testNoun test noun
+testNoun test (ArticledNounPhrase _ nounphrase _) = testNoun test nounphrase
+-- TODO: I don't think an infinitive can be a subject of a verb besides "to be."
+-- revisit this later.
+testNoun _ (Infinitive _ _) = True  -- Can be a subject or an object
+testNoun _ grammar = error ("Tried testing non-noun grammar " ++ show grammar ++
+                           "for noun-like properties")
+
 {-
 data PrepositionAttributes = { canFollowVerb :: Bool, canFollowNoun :: Bool }
 
