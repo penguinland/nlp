@@ -40,14 +40,28 @@ eofRules = []
 periodRules :: [Rule]
 periodRules = []
 
-makeRule1 :: (Node -> Bool) -> (Grammar -> Grammar) -> [Rule] -> Rule
-makeRule1 isRightNode toNewGrammar nextRules =
+makeRule1 :: (Grammar -> Bool) -> (Grammar -> Grammar) -> [Rule] -> Rule
+makeRule1 isCorrectNode toNewGrammar nextRules =
   let
-    newRule node@(Node g _ next)
-      | isRightNode node = [Node (toNewGrammar g) nextRules next]
+    newRule (Node g _ next)
+      | isCorrectNode g = [Node (toNewGrammar g) nextRules next]
     newRule _ = []
   in
     newRule
+
+{-
+makeRule2 :: (Node -> Bool) -> (Node -> Bool) ->
+             (Grammar -> Grammar -> Grammar) -> [Rule] -> Rule
+makeRule2 isCorrectFirstNode isCorrectSecondNode toNewGrammar nextRules =
+  let
+    newRule (Node first _ others)
+      | isCorrectFirstNode first =
+            map (toNewNode first) . filter isCorrectSecondNode $ others
+    toNewNode first (Node second _ next) =
+        Node (toNewGrammar first second) nextRules next
+  in
+    newRule
+-}
 
 infinitiveRule :: Rule
 infinitiveRule (Node to _ others) =
@@ -57,7 +71,7 @@ infinitiveRule (Node to _ others) =
         Node (ArticledNounPhrase Nothing (Infinitive to predicate) [])
               anpRules next
   in
-    map toInfinitive . filter isPredicate $ others
+    map toInfinitive . filter (liftFilter isPredicate) $ others
 
 predicateFromRawPredicate :: Rule
 predicateFromRawPredicate =
@@ -74,7 +88,7 @@ prepositionalPhraseFromANP (Node p@(Preposition _) _ others) =
     toPrepositionalPhrase (Node nounPhrase _ next) =
         Node (PrepositionalPhrase p nounPhrase) prepositionalPhraseRules next
   in
-    map toPrepositionalPhrase . filter isANP $ others
+    map toPrepositionalPhrase . filter (liftFilter isANP) $ others
 prepositionalPhraseFromANP _ = []
 
 prepositionalPhraseFromSentence :: Rule
@@ -84,7 +98,7 @@ prepositionalPhraseFromSentence (Node p@(Preposition _) _ others) =
     toPrepositionalPhrase (Node sentence _ next) =
         Node (PrepositionalPhrase p sentence) prepositionalPhraseRules next
   in
-    map toPrepositionalPhrase . filter isSentence $ others
+    map toPrepositionalPhrase . filter (liftFilter isSentence) $ others
 prepositionalPhraseFromSentence _ = []
 
 rawPredicateFromTransVerb :: Rule
@@ -94,7 +108,7 @@ rawPredicateFromTransVerb (Node v@(Verb _) _ others) =
     toPredicate (Node nounPhrase _ next) =
         Node (RawPredicate v (Just nounPhrase)) rawPredicateRules next
   in
-    map toPredicate . filter isANP $ others
+    map toPredicate . filter (liftFilter isANP) $ others
 rawPredicateFromTransVerb _ = []
 
 articledNounPhraseFromNounPhrase :: Rule
@@ -108,7 +122,7 @@ articledNounPhraseFromArticle (Node a@(Article _) _ others) =
     toANP (Node noun _ next) =
         Node (ArticledNounPhrase (Just a) noun []) anpRules next
   in
-    map toANP . filter isNounPhrase $ others
+    map toANP . filter (liftFilter isNounPhrase) $ others
 articledNounPhraseFromArticle _ = []
 
 subjectFromANP :: Rule
@@ -127,7 +141,7 @@ nounPhraseFromAdjective (Node adjective@(Adjective _) _ others) =
         Node (NounPhrase (adjective : adjectives) noun) nounPhraseRules next
     toNounPhrase _ = error "Unexpected non-NounPhrase node!"
   in
-    map toNounPhrase . filter isNounPhrase $ others
+    map toNounPhrase . filter (liftFilter isNounPhrase) $ others
 nounPhraseFromAdjective _ = []
 
 sentenceFromSubject :: Rule
@@ -137,7 +151,7 @@ sentenceFromSubject (Node s@(Subject _) _ others) =
     toSentence (Node predicate _ next) =
         Node (Sentence s predicate) sentenceRules next
   in
-    map toSentence . filter isPredicate $ others
+    map toSentence . filter (liftFilter isPredicate) $ others
 sentenceFromSubject _ = []
 
 fullSentenceFromSentence :: Rule
@@ -148,7 +162,7 @@ fullSentenceFromSentence (Node s@(Sentence _ _) _ others) =
         Node (FullSentence s) fullSentenceRules next
     toSentence _ = error "Unexpected non-Period node!"
   in
-    map toSentence . filter isPeriod $ others
+    map toSentence . filter (liftFilter isPeriod) $ others
 fullSentenceFromSentence _ = []
 
 predicateWithPrepositionalPhrase :: Rule
@@ -162,7 +176,7 @@ predicateWithPrepositionalPhrase
                         (prepositionalPhrases ++ [prepositionalPhrase]))
              fullSentenceRules next
   in
-    map toPredicate . filter isPrepositionalPhrase $ others
+    map toPredicate . filter (liftFilter isPrepositionalPhrase) $ others
 predicateWithPrepositionalPhrase _ = []
 
 anpWithPrepositionalPhrase :: Rule
@@ -177,5 +191,5 @@ anpWithPrepositionalPhrase
                         (prepositionalPhrases ++ [prepositionalPhrase]))
              anpRules next
   in
-    map toANP . filter isPrepositionalPhrase $ others
+    map toANP . filter (liftFilter isPrepositionalPhrase) $ others
 anpWithPrepositionalPhrase _ = []
