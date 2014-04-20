@@ -40,19 +40,14 @@ eofRules = []
 periodRules :: [Rule]
 periodRules = []
 
-{-
- -- This doesn't compile because grammarInner cannot be both an argument to the
- -- function and a pattern to match against. Consider doing this with Template
- -- Haskell instead.
-makeRuleA1 :: (a -> Grammar) -> (Grammar -> Grammar) [Rule] -> Rule
-makeRuleA1 grammarInner grammarOuter nextRules =
+makeRule1 :: (Node -> Bool) -> (Grammar -> Grammar) -> [Rule] -> Rule
+makeRule1 isRightNode toNewGrammar nextRules =
   let
-    newRule (Node g@(grammarInner _) _ next) =
-        [Node (grammarOuter g) nextRules next]
+    newRule node@(Node g _ next)
+      | isRightNode node = [Node (toNewGrammar g) nextRules next]
     newRule _ = []
   in
     newRule
--}
 
 infinitiveRule :: Rule
 infinitiveRule (Node to _ others) =
@@ -65,14 +60,12 @@ infinitiveRule (Node to _ others) =
     map toInfinitive . filter isPredicate $ others
 
 predicateFromRawPredicate :: Rule
-predicateFromRawPredicate node@(Node p _ next)
-  | isRawPredicate node = [Node (Predicate p []) predicateRules next]
-predicateFromRawPredicate _ = []
+predicateFromRawPredicate =
+    makeRule1 isRawPredicate (\p -> Predicate p []) predicateRules
 
 rawPredicateFromIntVerb :: Rule
-rawPredicateFromIntVerb node@(Node v _ next)
-  | isVerb node = [Node (RawPredicate v Nothing) rawPredicateRules next]
-rawPredicateFromIntVerb _ = []
+rawPredicateFromIntVerb =
+    makeRule1 isVerb (\v -> RawPredicate v Nothing) rawPredicateRules
 
 prepositionalPhraseFromANP :: Rule
 prepositionalPhraseFromANP (Node p@(Preposition _) _ others) =
@@ -105,9 +98,8 @@ rawPredicateFromTransVerb (Node v@(Verb _) _ others) =
 rawPredicateFromTransVerb _ = []
 
 articledNounPhraseFromNounPhrase :: Rule
-articledNounPhraseFromNounPhrase node@(Node n _ next)
-  | isNounPhrase node = [Node (ArticledNounPhrase Nothing n []) anpRules next]
-articledNounPhraseFromNounPhrase _ = []
+articledNounPhraseFromNounPhrase =
+    makeRule1 isNounPhrase (\n -> ArticledNounPhrase Nothing n []) anpRules
 
 articledNounPhraseFromArticle :: Rule
 articledNounPhraseFromArticle (Node a@(Article _) _ others) =
@@ -120,15 +112,12 @@ articledNounPhraseFromArticle (Node a@(Article _) _ others) =
 articledNounPhraseFromArticle _ = []
 
 subjectFromANP :: Rule
-subjectFromANP node@(Node n _ next)
-  | liftM2 (&&) isANP (testNoun canBeSubject) node =
-        [Node (Subject n) subjectRules next]
-subjectFromANP _ = []
+subjectFromANP =
+    makeRule1 (liftM2 (&&) isANP (testNoun canBeSubject)) Subject subjectRules
 
 nounPhraseFromNoun :: Rule
-nounPhraseFromNoun node@(Node n _ next)
-  | isNoun node = [Node (NounPhrase [] n) nounPhraseRules next]
-nounPhraseFromNoun _ = []
+nounPhraseFromNoun =
+    makeRule1 isNoun (\n -> NounPhrase [] n) nounPhraseRules
 
 nounPhraseFromAdjective :: Rule
 nounPhraseFromAdjective (Node adjective@(Adjective _) _ others) =
