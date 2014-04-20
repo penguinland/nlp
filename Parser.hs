@@ -1,11 +1,12 @@
+{-# OPTIONS_GHC -Wall #-}
+
 module Parser where
 
 import Grammar
-import Rules
 
 applyRules :: Node -> [Node]
 applyRules eof@(Node EOF _ _) = [eof]
-applyRules self@(Node grammar rules successors) =
+applyRules node =
   let
     -- We don't need to recursively apply the rules for our successor nodes;
     -- that already happened when they were lexed. We did that because data in
@@ -13,7 +14,7 @@ applyRules self@(Node grammar rules successors) =
     -- how many parent nodes there are. Otherwise, we'll duplicate major amounts
     -- of work (doubling the work required after each time there are two
     -- ambiguous nodes).
-    applyRulesFixedPoint current@(Node grammar rules successors) =
+    applyRulesFixedPoint current@(Node _ rules _) =
       let
         newNodes = concatMap (\f -> f current) $ rules
       in
@@ -22,7 +23,7 @@ applyRules self@(Node grammar rules successors) =
         -- stop creating new Nodes.
         (concatMap applyRulesFixedPoint newNodes) ++ newNodes
   in
-    self : applyRulesFixedPoint self
+    node : applyRulesFixedPoint node
 
 applyAllRules :: [Node] -> [Node]
 applyAllRules = concatMap applyRules
