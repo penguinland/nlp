@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -Wall #-}
 
-module GrammarFilter where
+module GrammarFilters where
 
 import Grammar
 
@@ -16,9 +16,9 @@ isSubject :: Node -> Bool
 isSubject (Node (Subject _) _ _) = True
 isSubject _ = False
 
-isArticledNounPhrase :: Node -> Bool
-isArticledNounPhrase (Node (ArticledNounPhrase _ _ _) _ _) = True
-isArticledNounPhrase _ = False
+isANP :: Node -> Bool
+isANP (Node (ArticledNounPhrase _ _ _) _ _) = True
+isANP _ = False
 
 isNounPhrase :: Node -> Bool
 isNounPhrase (Node (NounPhrase _ _) _ _) = True

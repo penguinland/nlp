@@ -3,6 +3,7 @@
 module Rules where
 
 import Grammar
+import GrammarFilters
 
 fullSentenceRules :: [Rule]
 fullSentenceRules = []
@@ -55,8 +56,6 @@ makeRuleA1 grammarInner grammarOuter nextRules =
 infinitiveRule :: Rule
 infinitiveRule (Node to _ others) =
   let
-    isPredicate (Node (Predicate _ _) _ _) = True
-    isPredicate _ = False
     toInfinitive :: Node -> Node
     toInfinitive (Node predicate _ next) =
         Node (ArticledNounPhrase Nothing (Infinitive to predicate) [])
@@ -77,8 +76,6 @@ rawPredicateFromIntVerb _ = []
 prepositionalPhraseFromANP :: Rule
 prepositionalPhraseFromANP (Node p@(Preposition _) _ others) =
   let
-    isANP (Node n@(ArticledNounPhrase _ _ _) _ _) = testNoun canBeObject n
-    isANP _ = False
     toPrepositionalPhrase :: Node -> Node
     toPrepositionalPhrase (Node nounPhrase _ next) =
         Node (PrepositionalPhrase p nounPhrase) prepositionalPhraseRules next
@@ -89,8 +86,6 @@ prepositionalPhraseFromANP _ = []
 prepositionalPhraseFromSentence :: Rule
 prepositionalPhraseFromSentence (Node p@(Preposition _) _ others) =
   let
-    isSentence (Node s@(Sentence _ _) _ _) = True
-    isSentence _ = False
     toPrepositionalPhrase :: Node -> Node
     toPrepositionalPhrase (Node sentence _ next) =
         Node (PrepositionalPhrase p sentence) prepositionalPhraseRules next
@@ -101,8 +96,6 @@ prepositionalPhraseFromSentence _ = []
 rawPredicateFromTransVerb :: Rule
 rawPredicateFromTransVerb (Node v@(Verb _) _ others) =
   let
-    isANP (Node (ArticledNounPhrase _ _ _) _ _) = True
-    isANP _ = False
     toPredicate :: Node -> Node
     toPredicate (Node nounPhrase _ next) =
         Node (RawPredicate v (Just nounPhrase)) rawPredicateRules next
@@ -118,8 +111,6 @@ articledNounPhraseFromNounPhrase _ = []
 articledNounPhraseFromArticle :: Rule
 articledNounPhraseFromArticle (Node a@(Article _) _ others) =
   let
-    isNounPhrase (Node (NounPhrase _ _) _ _) = True
-    isNounPhrase _ = False
     toANP :: Node -> Node
     toANP (Node noun _ next) =
         Node (ArticledNounPhrase (Just a) noun []) anpRules next
@@ -140,8 +131,6 @@ nounPhraseFromNoun _ = []
 nounPhraseFromAdjective :: Rule
 nounPhraseFromAdjective (Node adjective@(Adjective _) _ others) =
   let
-    isNounPhrase (Node (NounPhrase _ _) _ _) = True
-    isNounPhrase _ = False
     toNounPhrase :: Node -> Node
     toNounPhrase (Node (NounPhrase adjectives noun) _ next) =
         Node (NounPhrase (adjective : adjectives) noun) nounPhraseRules next
@@ -153,8 +142,6 @@ nounPhraseFromAdjective _ = []
 sentenceFromSubject :: Rule
 sentenceFromSubject (Node s@(Subject _) _ others) =
   let
-    isPredicate (Node (Predicate _ _) _ _) = True
-    isPredicate _ = False
     toSentence :: Node -> Node
     toSentence (Node predicate _ next) =
         Node (Sentence s predicate) sentenceRules next
@@ -165,8 +152,6 @@ sentenceFromSubject _ = []
 fullSentenceFromSentence :: Rule
 fullSentenceFromSentence (Node s@(Sentence _ _) _ others) =
   let
-    isPeriod (Node (Period) _ _) = True
-    isPeriod _ = False
     toSentence :: Node -> Node
     toSentence (Node Period _ next) =
         Node (FullSentence s) fullSentenceRules next
@@ -179,8 +164,6 @@ predicateWithPrepositionalPhrase :: Rule
 predicateWithPrepositionalPhrase
     (Node (Predicate rawPredicate prepositionalPhrases) _ others) =
   let
-    isPrepositionalPhrase (Node (PrepositionalPhrase _ _) _ _) = True
-    isPrepositionalPhrase _ = False
     toPredicate :: Node -> Node
     toPredicate (Node prepositionalPhrase _ next) =
         Node (Predicate rawPredicate
@@ -196,8 +179,6 @@ anpWithPrepositionalPhrase
     (Node (ArticledNounPhrase article nounPhrase prepositionalPhrases)
           _ others) =
   let
-    isPrepositionalPhrase (Node (PrepositionalPhrase _ _) _ _) = True
-    isPrepositionalPhrase _ = False
     toANP :: Node -> Node
     toANP (Node prepositionalPhrase _ next) =
         Node (ArticledNounPhrase article nounPhrase
