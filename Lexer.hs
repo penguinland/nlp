@@ -22,7 +22,8 @@ lexNodes input =
 
 wordToNodes :: String -> [Node] -> [Node]
 wordToNodes "." next = [Node Period [] next]
-wordToNodes "to" next = [Node (Preposition "to") [infinitiveRule] next]
+wordToNodes "to" next = [Node (Preposition "to" dummyPrepAttrs)
+                         (infinitiveRule : prepositionRules) next]
 wordToNodes word next =
   let
     result = concatMap (\f -> f word next) makePartsOfSpeech
@@ -100,8 +101,18 @@ makeTransVerb = makeNode isTransVerb Verb (transVerbRules ++ intVerbRules)
 makeAdjective :: String -> [Node] -> [Node]
 makeAdjective = makeNode isAdjective Adjective adjectiveRules
 
+-- TODO: remove this.
+dummyPrepAttrs :: PrepositionAttributes
+dummyPrepAttrs = PrepositionAttributes True True True True
 makePreposition :: String -> [Node] -> [Node]
-makePreposition = makeNode isPreposition Preposition prepositionRules
+-- "When" should always be followed by a sentence when used as a prepositional
+-- phrase.
+makePreposition "when" next =
+    [Node (Preposition "when" dummyPrepAttrs)
+     [prepositionalPhraseFromSentence] next]
+makePreposition word next =
+    makeNode isPreposition (\w -> Preposition w dummyPrepAttrs)
+        prepositionRules word next
 
 makeMisc :: String -> [Node] -> [Node]
 makeMisc "I" next = [Node (Noun "I" (NounAttributes { canBeSubject = True

@@ -66,7 +66,7 @@ makeRule2 isCorrectGrammar1 isCorrectGrammar2 toNewGrammar nextRules =
 infinitiveRule :: Rule
 infinitiveRule =
   let
-    isTo (Preposition "to") = True
+    isTo (Preposition "to" _) = True
     isTo _ = False
     toInfinitive to predicate =
         ArticledNounPhrase Nothing (Infinitive to predicate) []

@@ -43,7 +43,7 @@ data Grammar =
              | Noun String NounAttributes
              | Adjective String
              | Verb String
-             | Preposition String-- PrepositionAttributes
+             | Preposition String PrepositionAttributes
              | Period
              | EOF
     deriving(Show, Eq)
@@ -53,9 +53,15 @@ data NounAttributes = NounAttributes { canBeSubject :: Bool
 instance Show NounAttributes where
     show _ = ""  -- Don't bother showing the attributes when showing a Grammar
 
-{-
-data PrepositionAttributes = { canFollowVerb :: Bool, canFollowNoun :: Bool }
+data PrepositionAttributes = PrepositionAttributes { canFollowVerb :: Bool
+                                                   , canFollowNoun :: Bool
+                                                   , canContainSentence :: Bool
+                                                   , canContainPredicate :: Bool
+                                                   } deriving (Eq)
+instance Show PrepositionAttributes where
+    show _ = ""  -- Don't bother showing the attributes when showing a Grammar
 
+{-
 prepositionFollowsVerb :: Node -> Bool
 prepositionFollowsVerb
         (Node (PrepositionalPhrase (Preposition _ attributes) _)) =

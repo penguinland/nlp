@@ -61,7 +61,7 @@ isVerb (Verb _) = True
 isVerb _ = False
 
 isPreposition :: Grammar -> Bool
-isPreposition (Preposition _) = True
+isPreposition (Preposition _ _) = True
 isPreposition _ = False
 
 isPeriod :: Grammar -> Bool
