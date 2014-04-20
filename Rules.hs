@@ -29,7 +29,8 @@ intVerbRules = [rawPredicateFromIntVerb]
 transVerbRules :: [Rule]
 transVerbRules = [rawPredicateFromTransVerb]
 prepositionRules :: [Rule]
-prepositionRules = [prepositionalPhraseFromPreposition]
+prepositionRules = [ prepositionalPhraseFromANP
+                   , prepositionalPhraseFromSentence]
 prepositionalPhraseRules :: [Rule]
 prepositionalPhraseRules = []
 eofRules :: [Rule]
@@ -73,17 +74,29 @@ rawPredicateFromIntVerb (Node v@(Verb _) _ next) =
     [Node (RawPredicate v Nothing) rawPredicateRules next]
 rawPredicateFromIntVerb _ = []
 
-prepositionalPhraseFromPreposition :: Rule
-prepositionalPhraseFromPreposition (Node p@(Preposition _) _ others) =
+prepositionalPhraseFromANP :: Rule
+prepositionalPhraseFromANP (Node p@(Preposition _) _ others) =
   let
-    isANP (Node (ArticledNounPhrase _ _ _) _ _) = True
+    isANP (Node n@(ArticledNounPhrase _ _ _) _ _) = testNoun canBeObject n
     isANP _ = False
     toPrepositionalPhrase :: Node -> Node
     toPrepositionalPhrase (Node nounPhrase _ next) =
         Node (PrepositionalPhrase p nounPhrase) prepositionalPhraseRules next
   in
     map toPrepositionalPhrase . filter isANP $ others
-prepositionalPhraseFromPreposition _ = []
+prepositionalPhraseFromANP _ = []
+
+prepositionalPhraseFromSentence :: Rule
+prepositionalPhraseFromSentence (Node p@(Preposition _) _ others) =
+  let
+    isSentence (Node s@(Sentence _ _) _ _) = True
+    isSentence _ = False
+    toPrepositionalPhrase :: Node -> Node
+    toPrepositionalPhrase (Node sentence _ next) =
+        Node (PrepositionalPhrase p sentence) prepositionalPhraseRules next
+  in
+    map toPrepositionalPhrase . filter isSentence $ others
+prepositionalPhraseFromSentence _ = []
 
 rawPredicateFromTransVerb :: Rule
 rawPredicateFromTransVerb (Node v@(Verb _) _ others) =
@@ -115,8 +128,8 @@ articledNounPhraseFromArticle (Node a@(Article _) _ others) =
 articledNounPhraseFromArticle _ = []
 
 subjectFromANP :: Rule
-subjectFromANP (Node n@(ArticledNounPhrase _ _ _) _ next) =
-    [Node (Subject n) subjectRules next]
+subjectFromANP (Node n@(ArticledNounPhrase _ _ _) _ next)
+ | testNoun canBeSubject n = [Node (Subject n) subjectRules next]
 subjectFromANP _ = []
 
 nounPhraseFromNoun :: Rule

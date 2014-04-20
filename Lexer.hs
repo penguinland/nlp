@@ -35,7 +35,8 @@ makePartsOfSpeech = [ makeNoun
                     , makeIntVerb
                     , makeTransVerb
                     , makeAdjective
-                    , makePreposition]
+                    , makePreposition
+                    , makeMisc]
 
 -- Yes, I know that many of these are possessive adjectives and not articles.
 -- However, they act like articles, so that's what I'm going to call it here. In
@@ -48,7 +49,7 @@ isArticle :: String -> Bool
 isArticle = flip member articles
 
 nouns :: Set String
-nouns = fromList ["ball", "cat", "dog", "he", "it"]
+nouns = fromList ["ball", "cat", "dog", "it"]
 isNoun :: String -> Bool
 isNoun = flip member nouns
 
@@ -101,3 +102,15 @@ makeAdjective = makeNode isAdjective Adjective adjectiveRules
 
 makePreposition :: String -> [Node] -> [Node]
 makePreposition = makeNode isPreposition Preposition prepositionRules
+
+makeMisc :: String -> [Node] -> [Node]
+makeMisc "I" next = [Node (Noun "I" (NounAttributes { canBeSubject = True
+                                                    , canBeObject = False }))
+                          nounRules next]
+makeMisc "he" next = [Node (Noun "he" (NounAttributes { canBeSubject = True
+                                                      , canBeObject = False }))
+                           nounRules next]
+makeMisc "me" next = [Node (Noun "me" (NounAttributes { canBeSubject = False
+                                                      , canBeObject = True }))
+                           nounRules next]
+makeMisc _ _ = []
