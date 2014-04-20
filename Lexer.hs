@@ -50,7 +50,7 @@ isNoun :: String -> Bool
 isNoun = flip member nouns
 
 intransitiveVerbs :: Set String
-intransitiveVerbs = ["played", "runs"]
+intransitiveVerbs = fromList ["played", "runs"]
 isIntVerb :: String -> Bool
 isIntVerb = flip member intransitiveVerbs
 
