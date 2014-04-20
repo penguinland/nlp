@@ -1,22 +1,40 @@
+{-# OPTIONS_GHC -Wall #-}
+
 module Rules where
 
 import Grammar
 
+fullSentenceRules :: [Rule]
 fullSentenceRules = []
+sentenceRules :: [Rule]
 sentenceRules = [fullSentenceFromSentence]
+subjectRules :: [Rule]
 subjectRules = [sentenceFromSubject]
+predicateRules :: [Rule]
 predicateRules = [predicateWithPrepositionalPhrase]
+anpRules :: [Rule]
 anpRules = [subjectFromANP, anpWithPrepositionalPhrase]
+rawPredicateRules :: [Rule]
 rawPredicateRules = [predicateFromRawPredicate]
+articleRules :: [Rule]
 articleRules = [articledNounPhraseFromArticle]
+nounPhraseRules :: [Rule]
 nounPhraseRules = [articledNounPhraseFromNounPhrase]
+nounRules :: [Rule]
 nounRules = [nounPhraseFromNoun]
+adjectiveRules :: [Rule]
 adjectiveRules = [nounPhraseFromAdjective]
+intVerbRules :: [Rule]
 intVerbRules = [rawPredicateFromIntVerb]
+transVerbRules :: [Rule]
 transVerbRules = [rawPredicateFromTransVerb]
+prepositionRules :: [Rule]
 prepositionRules = [prepositionalPhraseFromPreposition]
+prepositionalPhraseRules :: [Rule]
 prepositionalPhraseRules = []
+eofRules :: [Rule]
 eofRules = []
+periodRules :: [Rule]
 periodRules = []
 
 {-
@@ -85,7 +103,7 @@ articledNounPhraseFromNounPhrase (Node n@(NounPhrase _ _) _ next) =
 articledNounPhraseFromNounPhrase _ = []
 
 articledNounPhraseFromArticle :: Rule
-articledNounPhraseFromArticle (Node a@(Article _) rules others) =
+articledNounPhraseFromArticle (Node a@(Article _) _ others) =
   let
     isNounPhrase (Node (NounPhrase _ _) _ _) = True
     isNounPhrase _ = False
@@ -139,13 +157,14 @@ fullSentenceFromSentence (Node s@(Sentence _ _) _ others) =
     toSentence :: Node -> Node
     toSentence (Node Period _ next) =
         Node (FullSentence s) fullSentenceRules next
+    toSentence _ = error "Unexpected non-Period node!"
   in
     map toSentence . filter isPeriod $ others
 fullSentenceFromSentence _ = []
 
 predicateWithPrepositionalPhrase :: Rule
 predicateWithPrepositionalPhrase
-    (Node p@(Predicate rawPredicate prepositionalPhrases) _ others) =
+    (Node (Predicate rawPredicate prepositionalPhrases) _ others) =
   let
     isPrepositionalPhrase (Node (PrepositionalPhrase _ _) _ _) = True
     isPrepositionalPhrase _ = False
@@ -161,7 +180,7 @@ predicateWithPrepositionalPhrase _ = []
 
 anpWithPrepositionalPhrase :: Rule
 anpWithPrepositionalPhrase
-    (Node p@(ArticledNounPhrase article nounPhrase prepositionalPhrases)
+    (Node (ArticledNounPhrase article nounPhrase prepositionalPhrases)
           _ others) =
   let
     isPrepositionalPhrase (Node (PrepositionalPhrase _ _) _ _) = True
