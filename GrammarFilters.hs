@@ -56,7 +56,7 @@ isAdjective (Adjective _) = True
 isAdjective _ = False
 
 isVerb :: Grammar -> Bool
-isVerb (Verb _) = True
+isVerb (Verb _ _) = True
 isVerb _ = False
 
 isPreposition :: Grammar -> Bool
@@ -83,6 +83,14 @@ instance Attributes NounAttributes where
     checkAttrs _ other =
         error ("Tried testing non-noun grammar " ++ show other ++
                " for noun-like properties")
+
+instance Attributes VerbAttributes where
+    checkAttrs test (Verb _ attributes) = test attributes
+    checkAttrs test (RawPredicate verb _) = checkAttrs test verb
+    checkAttrs test (Predicate rawPred _) = checkAttrs test rawPred
+    checkAttrs _ other =
+        error ("Tried testing non-verb grammar " ++ show other ++
+               " for verb-like properties")
 
 instance Attributes PrepositionAttributes where
     checkAttrs test (Preposition _ attributes) = test attributes

@@ -97,20 +97,25 @@ makeArticle = makeNode isArticle Article articleRules
 makeIntVerb :: String -> [Node] -> [Node]
 makeIntVerb word next =
     if member word normalIntransitiveVerbs
-    then [Node (Verb word) intVerbRules next]
+    then [ Node (Verb word (VerbAttributes First)) intVerbRules next
+         , Node (Verb word (VerbAttributes Second)) intVerbRules next]
     -- TODO: fix this for verbs that end in 's'.
     else if last word == 's' && member (init word) normalIntransitiveVerbs
-    then [Node (Verb word) intVerbRules next]
+    then [Node (Verb word (VerbAttributes Third)) intVerbRules next]
     else []
 
 -- TODO: Can you think of a verb that *requires* a direct object?
 makeTransVerb :: String -> [Node] -> [Node]
 makeTransVerb word next =
+  let
+    verbRules = intVerbRules ++ transVerbRules
+  in
     if member word normalTransitiveVerbs
-    then [Node (Verb word) (intVerbRules ++ transVerbRules) next]
+    then [ Node (Verb word (VerbAttributes First)) verbRules next
+         , Node (Verb word (VerbAttributes Second)) verbRules next]
     -- TODO: fix this for verbs that end in 's'.
     else if last word == 's' && member (init word) normalTransitiveVerbs
-    then [Node (Verb word) (intVerbRules ++ transVerbRules) next]
+    then [Node (Verb word (VerbAttributes Third)) verbRules next]
     else []
 
 makeAdjective :: String -> [Node] -> [Node]
@@ -143,21 +148,21 @@ makeMisc :: String -> [Node] -> [Node]
 makeMisc "I" next = [Node (Noun "I" (NounAttributes { canBeSubject = True
                                                     , canBeObject = False
                                                     , isPlural = False
-                                                    , person = First}))
+                                                    , personN = First}))
                           nounRules next]
 makeMisc "he" next = [Node (Noun "he" (NounAttributes { canBeSubject = True
                                                       , canBeObject = False
                                                       , isPlural = False
-                                                      , person = Third}))
+                                                      , personN = Third}))
                            nounRules next]
 makeMisc "me" next = [Node (Noun "me" (NounAttributes { canBeSubject = False
                                                       , canBeObject = True
                                                       , isPlural = False
-                                                      , person = First}))
+                                                      , personN = First}))
                            nounRules next]
 makeMisc "it" next = [Node (Noun "it" (NounAttributes { canBeSubject = True
                                                       , canBeObject = True
                                                       , isPlural = False
-                                                      , person = Third}))
+                                                      , personN = Third}))
                            nounRules next]
 makeMisc _ _ = []
