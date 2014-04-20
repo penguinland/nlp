@@ -47,10 +47,11 @@ articles = fromList ["a", "another", "her", "his", "my", "the", "their"]
 isArticle :: String -> Bool
 isArticle = flip member articles
 
-nouns :: Set String
-nouns = fromList ["ball", "cat", "dog", "it"]
+normalNouns :: Set String
+normalNouns = fromList ["ball", "cat", "dog"]
+-- TODO: either remove this or fix it in some way.
 isNoun :: String -> Bool
-isNoun = flip member nouns
+isNoun = flip member normalNouns
 
 intransitiveVerbs :: Set String
 intransitiveVerbs = fromList ["played", "ran", "run", "runs"]
@@ -84,7 +85,16 @@ makeNode isType nodeType rules word next =
     else []
 
 makeNoun :: String -> [Node] -> [Node]
-makeNoun = makeNode isNoun (\w -> Noun w (NounAttributes True True)) nounRules
+makeNoun word next =
+  let
+    singularNounAttributes = NounAttributes True True False
+    pluralNounAttributes = NounAttributes True True True
+  in
+    if member word normalNouns
+    then [Node (Noun word singularNounAttributes) nounRules next]
+    else if last word == 's' && member (init word) normalNouns
+    then [Node (Noun word pluralNounAttributes) nounRules next]
+    else []
 
 makeArticle :: String -> [Node] -> [Node]
 makeArticle = makeNode isArticle Article articleRules
@@ -118,12 +128,19 @@ makePreposition word next =
 
 makeMisc :: String -> [Node] -> [Node]
 makeMisc "I" next = [Node (Noun "I" (NounAttributes { canBeSubject = True
-                                                    , canBeObject = False }))
+                                                    , canBeObject = False
+                                                    , isPlural = False}))
                           nounRules next]
 makeMisc "he" next = [Node (Noun "he" (NounAttributes { canBeSubject = True
-                                                      , canBeObject = False }))
+                                                      , canBeObject = False
+                                                      , isPlural = False}))
                            nounRules next]
 makeMisc "me" next = [Node (Noun "me" (NounAttributes { canBeSubject = False
-                                                      , canBeObject = True }))
+                                                      , canBeObject = True
+                                                      , isPlural = False}))
+                           nounRules next]
+makeMisc "it" next = [Node (Noun "it" (NounAttributes { canBeSubject = True
+                                                      , canBeObject = True
+                                                      , isPlural = False}))
                            nounRules next]
 makeMisc _ _ = []

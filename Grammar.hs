@@ -49,7 +49,8 @@ data Grammar =
     deriving(Show, Eq)
 
 data NounAttributes = NounAttributes { canBeSubject :: Bool
-                                     , canBeObject :: Bool } deriving (Eq)
+                                     , canBeObject :: Bool
+                                     , isPlural :: Bool } deriving (Eq)
 instance Show NounAttributes where
     show _ = ""  -- Don't bother showing the attributes when showing a Grammar
 
