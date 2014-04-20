@@ -17,6 +17,19 @@ isAmbiguous =
   in
     isAmbiguous' . extractSentences
 
+isSingleSentence :: [Node] -> Bool
+isSingleSentence = isSingleSentence' . extractSentences
+
+-- Note: it's okay if the sentence is ambiguous, as long as all possible parses
+-- result in a single sentence.
+isSingleSentence' :: [Node] -> Bool
+isSingleSentence' =
+  let
+    nodeIsSingleSentence' (Node (FullSentence _) _ [Node EOF _ _]) = True
+    nodeIsSingleSentence' _ = False
+  in
+    all nodeIsSingleSentence'
+
 -- I've gotten some example text appropriate for first grade reading levels from
 -- http://www.superteacherworksheets.com/1st-comprehension.html
 
