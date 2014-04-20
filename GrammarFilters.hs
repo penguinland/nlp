@@ -72,17 +72,12 @@ isEOF EOF = True
 isEOF _ = False
 
 testNoun :: (NounAttributes -> Bool) -> Grammar -> Bool
-testNoun test grammar =
-  let
-    testNoun' (Noun _ attributes) = test attributes
-    testNoun' (NounPhrase _ noun) = testNoun' noun
-    testNoun' (ArticledNounPhrase _ nounphrase _) = testNoun' nounphrase
-    --testNoun' (PrepositionalPhrase _ nounphrase) = testNoun' nounphrase
-    -- TODO: I don't think an infinitive can be a subject of a verb besides "to
-    -- be." revisit this later.
-    testNoun' (Infinitive _ _)  = True  -- Can be a subject or an object
-    testNoun' other =
-        error ("Tried testing non-noun grammar " ++ show other ++
-               " for noun-like properties")
-  in
-    testNoun' grammar
+testNoun test (Noun _ attributes) = test attributes
+testNoun test (NounPhrase _ noun) = testNoun test noun
+testNoun test (ArticledNounPhrase _ nounphrase _) = testNoun test nounphrase
+--testNoun test (PrepositionalPhrase _ nounphrase) = testNoun test nounphrase
+-- TODO: I don't think an infinitive can be a subject of a verb besides "to
+-- be." revisit this later.
+testNoun _ (Infinitive _ _)  = True  -- Can be a subject or an object
+testNoun _ other = error ("Tried testing non-noun grammar " ++ show other ++
+                          " for noun-like properties")
