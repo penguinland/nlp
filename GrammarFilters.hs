@@ -71,10 +71,12 @@ isEOF :: Grammar -> Bool
 isEOF EOF = True
 isEOF _ = False
 
-testNoun :: (NounAttributes -> Bool) -> Grammar -> Bool
-testNoun test (Noun _ attributes) = test attributes
-testNoun test (NounPhrase _ noun) = testNoun test noun
-testNoun test (ArticledNounPhrase _ nounphrase _) = testNoun test nounphrase
-testNoun _ (Infinitive _ _)  = True  -- Can be a subject or an object
-testNoun _ other = error ("Tried testing non-noun grammar " ++ show other ++
-                          " for noun-like properties")
+instance Attributes NounAttributes where
+    checkAttrs test (Noun _ attributes) = test attributes
+    checkAttrs test (NounPhrase _ noun) = checkAttrs test noun
+    checkAttrs test (ArticledNounPhrase _ nounphrase _) =
+        checkAttrs test nounphrase
+    checkAttrs _ (Infinitive _ _)  = True  -- Can be a subject or an object
+    checkAttrs _ other =
+        error ("Tried testing non-noun grammar " ++ show other ++
+               " for noun-like properties")

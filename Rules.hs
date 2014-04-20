@@ -105,7 +105,7 @@ articledNounPhraseFromArticle =
 
 subjectFromANP :: Rule
 subjectFromANP =
-    makeRule1 (liftM2 (&&) isANP (testNoun canBeSubject)) Subject subjectRules
+    makeRule1 (liftM2 (&&) isANP (checkAttrs canBeSubject)) Subject subjectRules
 
 nounPhraseFromNoun :: Rule
 nounPhraseFromNoun =

@@ -48,6 +48,9 @@ data Grammar =
              | EOF
     deriving(Show, Eq)
 
+class Attributes a where
+    checkAttrs :: (a -> Bool) -> (Grammar -> Bool)
+
 data NounAttributes = NounAttributes { canBeSubject :: Bool
                                      , canBeObject :: Bool } deriving (Eq)
 instance Show NounAttributes where
