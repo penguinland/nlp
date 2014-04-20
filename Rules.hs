@@ -2,6 +2,7 @@
 
 module Rules where
 
+import Control.Monad
 import Grammar
 import GrammarFilters
 
@@ -64,13 +65,13 @@ infinitiveRule (Node to _ others) =
     map toInfinitive . filter isPredicate $ others
 
 predicateFromRawPredicate :: Rule
-predicateFromRawPredicate (Node p@(RawPredicate _ _) _ next) =
-    [Node (Predicate p []) predicateRules next]
+predicateFromRawPredicate node@(Node p _ next)
+  | isRawPredicate node = [Node (Predicate p []) predicateRules next]
 predicateFromRawPredicate _ = []
 
 rawPredicateFromIntVerb :: Rule
-rawPredicateFromIntVerb (Node v@(Verb _) _ next) =
-    [Node (RawPredicate v Nothing) rawPredicateRules next]
+rawPredicateFromIntVerb node@(Node v _ next)
+  | isVerb node = [Node (RawPredicate v Nothing) rawPredicateRules next]
 rawPredicateFromIntVerb _ = []
 
 prepositionalPhraseFromANP :: Rule
@@ -104,8 +105,8 @@ rawPredicateFromTransVerb (Node v@(Verb _) _ others) =
 rawPredicateFromTransVerb _ = []
 
 articledNounPhraseFromNounPhrase :: Rule
-articledNounPhraseFromNounPhrase (Node n@(NounPhrase _ _) _ next) =
-    [Node (ArticledNounPhrase Nothing n []) anpRules next]
+articledNounPhraseFromNounPhrase node@(Node n _ next)
+  | isNounPhrase node = [Node (ArticledNounPhrase Nothing n []) anpRules next]
 articledNounPhraseFromNounPhrase _ = []
 
 articledNounPhraseFromArticle :: Rule
@@ -119,13 +120,14 @@ articledNounPhraseFromArticle (Node a@(Article _) _ others) =
 articledNounPhraseFromArticle _ = []
 
 subjectFromANP :: Rule
-subjectFromANP (Node n@(ArticledNounPhrase _ _ _) _ next)
- | testNoun canBeSubject n = [Node (Subject n) subjectRules next]
+subjectFromANP node@(Node n _ next)
+  | liftM2 (&&) isANP (testNoun canBeSubject) node =
+        [Node (Subject n) subjectRules next]
 subjectFromANP _ = []
 
 nounPhraseFromNoun :: Rule
-nounPhraseFromNoun (Node n@(Noun _ _) _ next) =
-    [Node (NounPhrase [] n) nounPhraseRules next]
+nounPhraseFromNoun node@(Node n _ next)
+  | isNoun node = [Node (NounPhrase [] n) nounPhraseRules next]
 nounPhraseFromNoun _ = []
 
 nounPhraseFromAdjective :: Rule
