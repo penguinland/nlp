@@ -115,6 +115,7 @@ makeNoun word next =
 sameConjugation :: [VerbAttributes]
 sameConjugation = [ VerbAttributes First False
                   , VerbAttributes Second False
+                  , VerbAttributes Other False
                   , VerbAttributes First True
                   , VerbAttributes Second True
                   , VerbAttributes Third True]

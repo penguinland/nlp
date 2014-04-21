@@ -74,8 +74,9 @@ infinitiveRule =
     toInfinitive to predicate =
         ArticledNounPhrase Nothing
             (Infinitive to predicate (NounAttributes True True False Third)) []
+    notConjugated g = getAttrs personV g == Other
   in
-    makeRule2 isTo isPredicate toInfinitive anpRules
+    makeRule2 isTo (isPredicate `andAlso` notConjugated) toInfinitive anpRules
 
 predicateFromRawPredicate :: Rule
 predicateFromRawPredicate =

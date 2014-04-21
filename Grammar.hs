@@ -55,7 +55,8 @@ data Grammar =
              | EOF
     deriving(Show, Eq)
 
-data Person = First | Second | Third deriving (Eq, Show)
+-- Other is for verbs that aren't conjugated, like infinitives and gerunds.
+data Person = First | Second | Third | Other deriving (Eq, Show)
 
 data NounAttributes = NounAttributes { canBeSubject :: Bool
                                      , canBeObject :: Bool
