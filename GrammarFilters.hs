@@ -4,8 +4,8 @@ module GrammarFilters where
 
 import Grammar
 
-liftFilter :: (Grammar -> Bool) -> Node -> Bool
-liftFilter test (Node g _ _) = test g
+liftFilter :: (Grammar -> a) -> Node -> a
+liftFilter get (Node g _ _) = get g
 
 isFullSentence :: Grammar -> Bool
 isFullSentence (FullSentence _) = True
@@ -36,7 +36,7 @@ isRawPredicate (RawPredicate _ _) = True
 isRawPredicate _ = False
 
 isInfinitive :: Grammar -> Bool
-isInfinitive (Infinitive _ _) = True
+isInfinitive (Infinitive _ _ _) = True
 isInfinitive _ = False
 
 isPrepositionalPhrase :: Grammar -> Bool
@@ -72,33 +72,31 @@ isEOF EOF = True
 isEOF _ = False
 
 class Attributes a where
-    checkAttrs :: (a -> Bool) -> (Grammar -> Bool)
-    checkAttrs = getAttrs
     getAttrs :: (a -> b) -> (Grammar -> b)
-    getAttrs = undefined
 
 instance Attributes NounAttributes where
-    checkAttrs test (Noun _ attributes) = test attributes
-    checkAttrs test (NounPhrase _ noun) = checkAttrs test noun
-    checkAttrs test (ArticledNounPhrase _ nounphrase _) =
-        checkAttrs test nounphrase
-    checkAttrs _ (Infinitive _ _)  = True  -- Can be a subject or an object
-    checkAttrs _ other =
-        error ("Tried testing non-noun grammar " ++ show other ++
-               " for noun-like properties")
+    getAttrs get (Noun _ attributes) = get attributes
+    getAttrs get (NounPhrase _ noun) = getAttrs get noun
+    getAttrs get (ArticledNounPhrase _ nounphrase _) = getAttrs get nounphrase
+    getAttrs get (Infinitive _ _ attributes)  = get attributes
+    getAttrs get (Subject anp) = getAttrs get anp
+    getAttrs _ other =
+        error ("Tried getting noun-like attributes from non-noun grammar " ++
+               show other)
+
 
 instance Attributes VerbAttributes where
-    getAttrs test (Verb _ attributes) = test attributes
-    getAttrs test (RawPredicate verb _) = getAttrs test verb
-    getAttrs test (Predicate rawPred _) = getAttrs test rawPred
+    getAttrs get (Verb _ attributes) = get attributes
+    getAttrs get (RawPredicate verb _) = getAttrs get verb
+    getAttrs get (Predicate rawPred _) = getAttrs get rawPred
     getAttrs _ other =
-        error ("Tried testing non-verb grammar " ++ show other ++
-               " for verb-like properties")
+        error ("Tried getting verb-like attributes from non-verb grammar " ++
+               show other)
 
 instance Attributes PrepositionAttributes where
-    getAttrs test (Preposition _ attributes) = test attributes
-    getAttrs test (PrepositionalPhrase preposition _) =
-        getAttrs test preposition
+    getAttrs get (Preposition _ attributes) = get attributes
+    getAttrs get (PrepositionalPhrase preposition _) =
+        getAttrs get preposition
     getAttrs _ other =
-        error ("Tried testing non-preposition grammar " ++ show other ++
-               " for preposition-like properties")
+        error ("Tried getting preposition-like attributes from " ++
+               "non-preposition grammar " ++ show other)

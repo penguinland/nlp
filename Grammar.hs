@@ -36,7 +36,7 @@ data Grammar =
             -- RawPredicate Verb (Maybe DirectObject)
              | RawPredicate Grammar (Maybe Grammar)
             -- Infinitive "To" Predicate
-             | Infinitive Grammar Grammar
+             | Infinitive Grammar Grammar NounAttributes
             -- PrepositionalPhrase Preposition ArticledNounPhrase
              | PrepositionalPhrase Grammar Grammar
              | Article String

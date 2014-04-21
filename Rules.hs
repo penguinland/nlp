@@ -69,7 +69,8 @@ infinitiveRule =
     isTo (Preposition "to" _) = True
     isTo _ = False
     toInfinitive to predicate =
-        ArticledNounPhrase Nothing (Infinitive to predicate) []
+        ArticledNounPhrase Nothing
+            (Infinitive to predicate (NounAttributes True True False Third)) []
   in
     makeRule2 isTo isPredicate toInfinitive anpRules
 
@@ -83,12 +84,12 @@ rawPredicateFromIntVerb =
 
 prepositionalPhraseFromANP :: Rule
 prepositionalPhraseFromANP =
-    makeRule2 (liftM2 (&&) isPreposition (checkAttrs canContainNoun))
+    makeRule2 (liftM2 (&&) isPreposition (getAttrs canContainNoun))
         isANP PrepositionalPhrase prepositionalPhraseRules
 
 prepositionalPhraseFromSentence :: Rule
 prepositionalPhraseFromSentence =
-    makeRule2 (liftM2 (&&) isPreposition (checkAttrs canContainSentence))
+    makeRule2 (liftM2 (&&) isPreposition (getAttrs canContainSentence))
         isSentence PrepositionalPhrase prepositionalPhraseRules
 
 rawPredicateFromTransVerb :: Rule
@@ -106,7 +107,7 @@ articledNounPhraseFromArticle =
 
 subjectFromANP :: Rule
 subjectFromANP =
-    makeRule1 (liftM2 (&&) isANP (checkAttrs canBeSubject)) Subject subjectRules
+    makeRule1 (liftM2 (&&) isANP (getAttrs canBeSubject)) Subject subjectRules
 
 nounPhraseFromNoun :: Rule
 nounPhraseFromNoun =
@@ -122,13 +123,20 @@ nounPhraseFromAdjective =
     makeRule2 isAdjective isNounPhrase toNounPhrase nounPhraseRules
 
 sentenceFromSubject :: Rule
-sentenceFromSubject =
-    makeRule2 isSubject isPredicate Sentence sentenceRules
+sentenceFromSubject node =
+  let
+    subjectPerson = liftFilter (getAttrs personN) node
+    subjectVerbAgreement :: Grammar -> Bool
+    subjectVerbAgreement predicate =
+        subjectPerson == getAttrs personV predicate
+  in
+    makeRule2 isSubject (liftM2 (&&) isPredicate subjectVerbAgreement)
+        Sentence sentenceRules node
 
 fullSentenceFromSentence :: Rule
 fullSentenceFromSentence =
     -- FullSentence doesn't store the period, so just gobble that argument.
-    makeRule2 isSentence isPeriod (curry fst . FullSentence) fullSentenceRules
+    makeRule2 isSentence isPeriod (const . FullSentence) fullSentenceRules
 
 predicateWithPrepositionalPhrase :: Rule
 predicateWithPrepositionalPhrase =
@@ -139,7 +147,7 @@ predicateWithPrepositionalPhrase =
     toPredicate _ _ = error ("Unexpected nodes when merging predicate and " ++
                              "prepositional phrase!")
     isAcceptablePreposition =
-        liftM2 (&&) isPrepositionalPhrase (checkAttrs canModifyVerb)
+        liftM2 (&&) isPrepositionalPhrase (getAttrs canModifyVerb)
   in
     makeRule2 isPredicate isAcceptablePreposition toPredicate predicateRules
 
@@ -152,6 +160,6 @@ anpWithPrepositionalPhrase =
     toANP _ _ =
         error "Unexpected nodes when merging ANP and prepositional phrase!"
     isAcceptablePreposition =
-        liftM2 (&&) isPrepositionalPhrase (checkAttrs canModifyNoun)
+        liftM2 (&&) isPrepositionalPhrase (getAttrs canModifyNoun)
   in
     makeRule2 isANP isAcceptablePreposition toANP anpRules

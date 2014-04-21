@@ -52,11 +52,11 @@ normalNouns = fromList ["ball", "carrot", "cat", "dip", "dog", "lace", "plate",
     "refrigerator", "sink", "snack"]
 
 normalIntransitiveVerbs :: Set String
-normalIntransitiveVerbs = fromList ["play", "played", "ran", "run"]
+normalIntransitiveVerbs = fromList ["ran", "run"]
 
 normalTransitiveVerbs :: Set String
-normalTransitiveVerbs = fromList [
-    "chew", "chewed", "eat", "found", "help", "love", "play", "threw", "was"]
+normalTransitiveVerbs = fromList ["chew", "chewed", "eat", "found", "help",
+    "love", "play", "played", "threw", "was"]
 
 adjectives :: Set String
 adjectives = fromList ["big", "blue", "hungry", "red", "yellow"]
