@@ -62,8 +62,7 @@ normalTransitiveVerbs = Data.Set.fromList ["chew", "chewed", "eat", "found",
 adjectives :: Data.Set.Set String
 adjectives = Data.Set.fromList ["big", "blue", "hungry", "red", "yellow"]
 makeAdjective :: String -> [Node] -> [Node]
-makeAdjective =
-    makeNode adjectives Adjective adjectiveRules
+makeAdjective = makeNode adjectives Adjective adjectiveRules
 
 prepositions :: Data.Set.Set String
 prepositions = Data.Set.fromList ["after", "with"]
@@ -165,4 +164,5 @@ makeMisc "it" next = [Node (Noun "it" (NounAttributes { canBeSubject = True
                                                       , isPluralN = False
                                                       , personN = Third}))
                            nounRules next]
+makeMisc "and" next = [Node (Conjunction "and") conjunctionRules next]
 makeMisc _ _ = []

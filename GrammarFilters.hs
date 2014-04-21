@@ -43,6 +43,10 @@ isPrepositionalPhrase :: Grammar -> Bool
 isPrepositionalPhrase (PrepositionalPhrase _ _) = True
 isPrepositionalPhrase _ = False
 
+isConjunctivePhrase :: Grammar -> Bool
+isConjunctivePhrase (ConjunctivePhrase _ _ _) = True
+isConjunctivePhrase _ = False
+
 isArticle :: Grammar -> Bool
 isArticle (Article _) = True
 isArticle _ = False
@@ -54,6 +58,10 @@ isNoun _ = False
 isAdjective :: Grammar -> Bool
 isAdjective (Adjective _) = True
 isAdjective _ = False
+
+isConjunction :: Grammar -> Bool
+isConjunction (Conjunction _) = True
+isConjunction _ = False
 
 isVerb :: Grammar -> Bool
 isVerb (Verb _ _) = True
@@ -74,12 +82,17 @@ isEOF _ = False
 class Attributes a where
     getAttrs :: (a -> b) -> (Grammar -> b)
 
+-- TODO: make errors more graceful.
+
 instance Attributes NounAttributes where
     getAttrs get (Noun _ attributes) = get attributes
     getAttrs get (NounPhrase _ noun) = getAttrs get noun
     getAttrs get (ArticledNounPhrase _ nounphrase _) = getAttrs get nounphrase
     getAttrs get (Infinitive _ _ attributes)  = get attributes
     getAttrs get (Subject anp) = getAttrs get anp
+    -- We don't include conjunctive phrases here because they will be wrapped in
+    -- their own ANP.
+    -- TODO: check on this.
     getAttrs _ other =
         error ("Tried getting noun-like attributes from non-noun grammar " ++
                show other)
@@ -89,6 +102,14 @@ instance Attributes VerbAttributes where
     getAttrs get (Verb _ attributes) = get attributes
     getAttrs get (RawPredicate verb _) = getAttrs get verb
     getAttrs get (Predicate rawPred _) = getAttrs get rawPred
+    -- TODO: figure out conjunctions here
+    {-
+    getAttrs get (ConjunctivePhrase lefts _ right) =
+        if all (getAttrs get) right : lefts
+        then getAttrs right
+        else error("Tried getting verb-like attributes from " ++
+                   "conjunctive phrase, but got conflicting signals")
+    -}
     getAttrs _ other =
         error ("Tried getting verb-like attributes from non-verb grammar " ++
                show other)
@@ -97,6 +118,14 @@ instance Attributes PrepositionAttributes where
     getAttrs get (Preposition _ attributes) = get attributes
     getAttrs get (PrepositionalPhrase preposition _) =
         getAttrs get preposition
+    -- TODO: figure out conjunctions here
+    {-
+    getAttrs get (ConjunctivePhrase lefts _ right) =
+        if all (getAttrs get) right : lefts
+        then getAttrs right
+        else error("Tried getting preposition-like attributes from " ++
+                   "conjunctive phrase, but got conflicting signals")
+    -}
     getAttrs _ other =
         error ("Tried getting preposition-like attributes from " ++
                "non-preposition grammar " ++ show other)

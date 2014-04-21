@@ -30,6 +30,8 @@ intVerbRules :: [Rule]
 intVerbRules = [rawPredicateFromIntVerb]
 transVerbRules :: [Rule]
 transVerbRules = [rawPredicateFromTransVerb]
+conjunctionRules :: [Rule]
+conjunctionRules = []  -- TODO: fill these in
 prepositionRules :: [Rule]
 prepositionRules = [ prepositionalPhraseFromANP
                    , prepositionalPhraseFromSentence]

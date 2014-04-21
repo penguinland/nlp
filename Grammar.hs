@@ -39,9 +39,12 @@ data Grammar =
              | Infinitive Grammar Grammar NounAttributes
             -- PrepositionalPhrase Preposition ArticledNounPhrase
              | PrepositionalPhrase Grammar Grammar
+            -- ConjunctivePhrase [Phrase] Conjunction Phrase
+             | ConjunctivePhrase [Grammar] Grammar Grammar
              | Article String
              | Noun String NounAttributes
              | Adjective String
+             | Conjunction String
              | Verb String VerbAttributes
              | Preposition String PrepositionAttributes
              | Period
