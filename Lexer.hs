@@ -50,14 +50,14 @@ makeArticle = makeNode articles Article articleRules
 
 normalNouns :: Data.Set.Set String
 normalNouns = Data.Set.fromList ["ball", "carrot", "cat", "dip", "dog", "lace",
-    "plate", "refrigerator", "sink", "snack"]
+    "plate", "refrigerator", "sink", "snack", "yard"]
 
 normalIntransitiveVerbs :: Data.Set.Set String
 normalIntransitiveVerbs = Data.Set.fromList ["ran", "run"]
 
 normalTransitiveVerbs :: Data.Set.Set String
 normalTransitiveVerbs = Data.Set.fromList ["chew", "chewed", "eat", "found",
-    "help", "love", "play", "played", "threw", "was"]
+    "help", "like", "love", "play", "played", "threw", "was"]
 
 adjectives :: Data.Set.Set String
 adjectives = Data.Set.fromList ["big", "blue", "hungry", "red", "yellow"]

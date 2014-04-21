@@ -1,10 +1,13 @@
 {-# OPTIONS_GHC -Wall #-}
 
-module Test where
+module Analysis where
 
 import Grammar
 import Lexer
 import Parser
+
+getGrammar :: Node -> Grammar
+getGrammar (Node g _ _) = g
 
 isAmbiguous :: [Node] -> Bool
 isAmbiguous =
@@ -45,7 +48,7 @@ results1 = extractSentences results1partial
 text1basic :: String
 text1basic = "my dogs found a yellow ball ."
 results1basic :: [Node]
-results1basic = lexNodes text1basic
+results1basic = extractSentences $ lexNodes text1basic
 
 text1half :: String
 text1half = "he ran after the blue ball when I threw it ."
