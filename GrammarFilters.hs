@@ -9,6 +9,7 @@ import Grammar
 liftFilter :: (Grammar -> a) -> Node -> a
 liftFilter get (Node g _ _) = get g
 
+-- Read this type signature as (a -> Bool) -> (a -> Bool) -> a -> Bool
 andAlso :: (Monad m) => m Bool -> m Bool -> m Bool
 andAlso = liftM2 (&&)
 
