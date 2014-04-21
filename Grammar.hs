@@ -52,12 +52,13 @@ data Person = First | Second | Third deriving (Eq, Show)
 
 data NounAttributes = NounAttributes { canBeSubject :: Bool
                                      , canBeObject :: Bool
-                                     , isPlural :: Bool
+                                     , isPluralN :: Bool
                                      , personN :: Person } deriving (Eq)
 instance Show NounAttributes where
     show _ = ""  -- Don't bother showing the attributes when showing a Grammar
 
-data VerbAttributes = VerbAttributes { personV :: Person } deriving (Eq)
+data VerbAttributes = VerbAttributes { personV :: Person
+                                     , isPluralV :: Bool } deriving (Eq)
 instance Show VerbAttributes where
     show _ = ""  -- Don't bother showing the attributes when showing a Grammar
 

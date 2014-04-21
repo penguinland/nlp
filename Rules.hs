@@ -126,9 +126,11 @@ sentenceFromSubject :: Rule
 sentenceFromSubject node =
   let
     subjectPerson = liftFilter (getAttrs personN) node
+    subjectNumber = liftFilter (getAttrs isPluralN) node
     subjectVerbAgreement :: Grammar -> Bool
     subjectVerbAgreement predicate =
-        subjectPerson == getAttrs personV predicate
+        subjectPerson == getAttrs personV predicate &&
+        subjectNumber == getAttrs isPluralV predicate
   in
     makeRule2 isSubject (liftM2 (&&) isPredicate subjectVerbAgreement)
         Sentence sentenceRules node
