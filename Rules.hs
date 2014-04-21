@@ -2,7 +2,6 @@
 
 module Rules where
 
-import Control.Monad
 import Grammar
 import GrammarFilters
 
@@ -34,9 +33,11 @@ conjunctionRules :: [Rule]
 conjunctionRules = []  -- TODO: fill these in
 prepositionRules :: [Rule]
 prepositionRules = [ prepositionalPhraseFromANP
-                   , prepositionalPhraseFromSentence]
+                   , prepositionalPhraseFromSentence ]
 prepositionalPhraseRules :: [Rule]
-prepositionalPhraseRules = []
+prepositionalPhraseRules = [ prepositionalPhraseToList ]
+prepListRules :: [Rule]
+prepListRules = []  -- TODO: fill this in
 eofRules :: [Rule]
 eofRules = []
 periodRules :: [Rule]
@@ -86,12 +87,12 @@ rawPredicateFromIntVerb =
 
 prepositionalPhraseFromANP :: Rule
 prepositionalPhraseFromANP =
-    makeRule2 (liftM2 (&&) isPreposition (getAttrs canContainNoun))
+    makeRule2 (isPreposition `andAlso` (getAttrs canContainNoun))
         isANP PrepositionalPhrase prepositionalPhraseRules
 
 prepositionalPhraseFromSentence :: Rule
 prepositionalPhraseFromSentence =
-    makeRule2 (liftM2 (&&) isPreposition (getAttrs canContainSentence))
+    makeRule2 (isPreposition `andAlso` (getAttrs canContainSentence))
         isSentence PrepositionalPhrase prepositionalPhraseRules
 
 rawPredicateFromTransVerb :: Rule
@@ -109,7 +110,7 @@ articledNounPhraseFromArticle =
 
 subjectFromANP :: Rule
 subjectFromANP =
-    makeRule1 (liftM2 (&&) isANP (getAttrs canBeSubject)) Subject subjectRules
+    makeRule1 (isANP `andAlso` (getAttrs canBeSubject)) Subject subjectRules
 
 nounPhraseFromNoun :: Rule
 nounPhraseFromNoun =
@@ -134,7 +135,7 @@ sentenceFromSubject node =
         subjectPerson == getAttrs personV predicate &&
         subjectNumber == getAttrs isPluralV predicate
   in
-    makeRule2 isSubject (liftM2 (&&) isPredicate subjectVerbAgreement)
+    makeRule2 isSubject (isPredicate `andAlso` subjectVerbAgreement)
         Sentence sentenceRules node
 
 fullSentenceFromSentence :: Rule
@@ -151,7 +152,7 @@ predicateWithPrepositionalPhrase =
     toPredicate _ _ = error ("Unexpected nodes when merging predicate and " ++
                              "prepositional phrase!")
     isAcceptablePreposition =
-        liftM2 (&&) isPrepositionalPhrase (getAttrs canModifyVerb)
+        isPrepositionalPhrase `andAlso` (getAttrs canModifyVerb)
   in
     makeRule2 isPredicate isAcceptablePreposition toPredicate predicateRules
 
@@ -164,6 +165,25 @@ anpWithPrepositionalPhrase =
     toANP _ _ =
         error "Unexpected nodes when merging ANP and prepositional phrase!"
     isAcceptablePreposition =
-        liftM2 (&&) isPrepositionalPhrase (getAttrs canModifyNoun)
+        isPrepositionalPhrase `andAlso` (getAttrs canModifyNoun)
   in
     makeRule2 isANP isAcceptablePreposition toANP anpRules
+
+prepositionalPhraseToList :: Rule
+prepositionalPhraseToList node =
+  let
+    inConjunction test (ConjunctivePhrase _ _ contents) = test contents
+    inConjunction _ g = error ("Unexpected non-conjunction " ++ show g)
+    nodeAttributes :: PrepositionAttributes
+    nodeAttributes = liftFilter (getAttrs id) node
+    isPrepositionalList =
+        -- Because monads are associative, we don't care which way the
+        -- `andAlso`'s chain.
+        isConjunction `andAlso` (inConjunction isPrepositionalPhrase) `andAlso`
+        (\p -> nodeAttributes == getAttrs id p)
+    addToList newPrep (ConjunctivePhrase preps conj final) =
+        ConjunctivePhrase (newPrep : preps) conj final
+    addToList _ g = error ("Unexpected non-conjunction " ++ show g)
+  in
+    makeRule2
+        isPrepositionalPhrase isPrepositionalList addToList prepListRules node

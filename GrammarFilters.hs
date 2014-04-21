@@ -2,10 +2,15 @@
 
 module GrammarFilters where
 
+import Control.Monad
+
 import Grammar
 
 liftFilter :: (Grammar -> a) -> Node -> a
 liftFilter get (Node g _ _) = get g
+
+andAlso :: (Monad m) => m Bool -> m Bool -> m Bool
+andAlso = liftM2 (&&)
 
 isFullSentence :: Grammar -> Bool
 isFullSentence (FullSentence _) = True
