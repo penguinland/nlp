@@ -169,6 +169,8 @@ anpWithPrepositionalPhrase =
   in
     makeRule2 isANP isAcceptablePreposition toANP anpRules
 
+-- TODO: this is going to introduce massive ambiguity. Is there a way to prevent
+-- that?
 prepositionalPhraseToList :: Rule
 prepositionalPhraseToList node =
   let
