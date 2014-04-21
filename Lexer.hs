@@ -6,6 +6,7 @@ import qualified Data.Set
 
 import Grammar
 import LexerHelpers
+import Nouns
 import qualified Parser
 import Rules
 
@@ -49,10 +50,6 @@ articles = Data.Set.fromList ["a", "another", "her", "his", "my", "the",
 makeArticle :: String -> [Node] -> [Node]
 makeArticle = makeNode articles Article articleRules
 
-normalNouns :: Data.Set.Set String
-normalNouns = Data.Set.fromList ["ball", "bush", "carrot", "cat", "class",
-    "dip", "dog", "lace", "plate", "refrigerator", "sink", "snack", "yard"]
-
 normalIntransitiveVerbs :: Data.Set.Set String
 normalIntransitiveVerbs = Data.Set.fromList ["ran", "run"]
 
@@ -95,26 +92,8 @@ addRule (Node grammar rules next) newRule = Node grammar (newRule : rules) next
 
 makeNoun :: String -> [Node] -> [Node]
 makeNoun word next =
-  let
-    singularNounAttributes = NounAttributes True True False Third
-    pluralNounAttributes = NounAttributes True True True Third
-  in
-    if Data.Set.member word normalNouns
-    then [Node (Noun word singularNounAttributes) nounRules next]
-    else if last word == 's'
-    then
-        if Data.Set.member (init word) normalNouns
-        then [Node (Noun word pluralNounAttributes) nounRules next]
-        else case getRootFrom "ses" word of
-            Just root | Data.Set.member (root ++ "s") normalNouns ->
-                [Node (Noun (root ++ "s") pluralNounAttributes) nounRules next]
-            _ ->
-                case getRootFrom "shes" word of
-                    Just root | Data.Set.member (root ++ "sh") normalNouns ->
-                        [Node (Noun (root ++ "s") pluralNounAttributes)
-                         nounRules next]
-                    _ -> []
-    else []
+    concatMap (\(set, plural) -> makeNounCase set plural word next)
+        [(normalNouns, "s"), (pluralEsNouns, "es")]
 
 sameConjugation :: [VerbAttributes]
 sameConjugation = [ VerbAttributes First False
