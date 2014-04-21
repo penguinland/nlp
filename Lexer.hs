@@ -37,6 +37,21 @@ makePartsOfSpeech = [ makeNoun
                     , makePreposition
                     , makeMisc]
 
+-- If word ends with ending, give back Just the word with the ending stripped
+-- off. If word doesn't end with ending, give back Nothing.
+getRootFrom :: String -> String -> Maybe String
+getRootFrom ending word =
+  let
+    rEnding = reverse ending
+    rWord = reverse word
+    getRootFrom' [] root = Just root
+    getRootFrom' _ [] = Nothing
+    getRootFrom' (e:es) (w:ws)
+      | e == w = getRootFrom' es ws
+      | otherwise = Nothing
+  in
+    getRootFrom' rEnding rWord >>= (return . reverse)
+
 -- Yes, I know that many of these are possessive adjectives and not articles.
 -- However, they act like articles, so that's what I'm going to call it here. In
 -- particular, these are words that could be substituted for the word "the" in
@@ -49,8 +64,8 @@ makeArticle :: String -> [Node] -> [Node]
 makeArticle = makeNode articles Article articleRules
 
 normalNouns :: Data.Set.Set String
-normalNouns = Data.Set.fromList ["ball", "carrot", "cat", "dip", "dog", "lace",
-    "plate", "refrigerator", "sink", "snack", "yard"]
+normalNouns = Data.Set.fromList ["ball", "bush", "carrot", "cat", "class",
+    "dip", "dog", "lace", "plate", "refrigerator", "sink", "snack", "yard"]
 
 normalIntransitiveVerbs :: Data.Set.Set String
 normalIntransitiveVerbs = Data.Set.fromList ["ran", "run"]
@@ -107,9 +122,19 @@ makeNoun word next =
   in
     if Data.Set.member word normalNouns
     then [Node (Noun word singularNounAttributes) nounRules next]
-    -- TODO: fix this for nouns that end is 's'.
-    else if last word == 's' && Data.Set.member (init word) normalNouns
-    then [Node (Noun word pluralNounAttributes) nounRules next]
+    else if last word == 's'
+    then
+        if Data.Set.member (init word) normalNouns
+        then [Node (Noun word pluralNounAttributes) nounRules next]
+        else case getRootFrom "ses" word of
+            Just root | Data.Set.member (root ++ "s") normalNouns ->
+                [Node (Noun (root ++ "s") pluralNounAttributes) nounRules next]
+            _ ->
+                case getRootFrom "shes" word of
+                    Just root | Data.Set.member (root ++ "sh") normalNouns ->
+                        [Node (Noun (root ++ "s") pluralNounAttributes)
+                         nounRules next]
+                    _ -> []
     else []
 
 sameConjugation :: [VerbAttributes]

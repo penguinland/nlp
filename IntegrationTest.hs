@@ -53,6 +53,11 @@ testConjugation4 =
     TestCase $ assertBool "Conjugation: incorrect third person plural"
         (not . isSingleSentence . lexNodes $ "my dogs likes to run .")
 
+testPluralNouns :: Test
+testPluralNouns =
+    TestCase $ assertBool "Nouns ending in S have plurals with ES"
+        (isWellFormed "bushes like classes .")
+
 main :: IO Counts
 main = runTestTT $ TestList [ testBasicSentence
                             , testPrepositionalPhraseUnambig
@@ -62,4 +67,5 @@ main = runTestTT $ TestList [ testBasicSentence
                             , testConjugation2
                             , testConjugation3
                             , testConjugation4
+                            , testPluralNouns
                             ]
