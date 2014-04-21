@@ -30,21 +30,18 @@ testPrepositionalPhraseAmbig =
 
 testInfinitive :: Test
 testInfinitive =
-    TestCase $ assertBool "Infinitive should be a valid object"
-        -- Each conjugation of "run" (first person, second person, plural first
-        -- person, plural second person, plural third person) is separately
-        -- turned into an infinitive, so there are 5 "valid" parsings here.
+    TestCase $ assertBool "Infinitive should be a valid, unambiguous object"
         (isWellFormed "I love to run .")
 
 testConjugation1 :: Test
 testConjugation1 =
     TestCase $ assertBool "Conjugation: third person singular"
-        (isSingleSentence . lexNodes $ "my dog likes to run .")
+        (isWellFormed "my dog likes to run .")
 
 testConjugation2 :: Test
 testConjugation2 =
     TestCase $ assertBool "Conjugation: third person plural"
-        (isSingleSentence . lexNodes $ "my dogs like to run .")
+        (isWellFormed "my dogs like to run .")
 
 testConjugation3 :: Test
 testConjugation3 =
