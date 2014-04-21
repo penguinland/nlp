@@ -91,8 +91,8 @@ instance Attributes NounAttributes where
     getAttrs get (Infinitive _ _ attributes)  = get attributes
     getAttrs get (Subject anp) = getAttrs get anp
     -- We don't include conjunctive phrases here because they will be wrapped in
-    -- their own ANP.
-    -- TODO: check on this.
+    -- their own ANP. You should never need to try getting noun attributes from
+    -- a conjunctive phrase.
     getAttrs _ other =
         error ("Tried getting noun-like attributes from non-noun grammar " ++
                show other)
@@ -102,30 +102,21 @@ instance Attributes VerbAttributes where
     getAttrs get (Verb _ attributes) = get attributes
     getAttrs get (RawPredicate verb _) = getAttrs get verb
     getAttrs get (Predicate rawPred _) = getAttrs get rawPred
-    -- TODO: figure out conjunctions here
-    {-
-    getAttrs get (ConjunctivePhrase lefts _ right) =
-        if all (getAttrs get) right : lefts
-        then getAttrs right
-        else error("Tried getting verb-like attributes from " ++
-                   "conjunctive phrase, but got conflicting signals")
-    -}
+    -- For a conjunctive phrase to be created, we require all pieces of it to
+    -- have identical attributes. Just check the last one, because the rest will
+    -- be the same.
+    getAttrs get (ConjunctivePhrase _ _ right) = getAttrs get right
     getAttrs _ other =
         error ("Tried getting verb-like attributes from non-verb grammar " ++
                show other)
 
 instance Attributes PrepositionAttributes where
     getAttrs get (Preposition _ attributes) = get attributes
-    getAttrs get (PrepositionalPhrase preposition _) =
-        getAttrs get preposition
-    -- TODO: figure out conjunctions here
-    {-
-    getAttrs get (ConjunctivePhrase lefts _ right) =
-        if all (getAttrs get) right : lefts
-        then getAttrs right
-        else error("Tried getting preposition-like attributes from " ++
-                   "conjunctive phrase, but got conflicting signals")
-    -}
+    getAttrs get (PrepositionalPhrase preposition _) = getAttrs get preposition
+    -- For a conjunctive phrase to be created, we require all pieces of it to
+    -- have identical attributes. Just check the last one, because the rest will
+    -- be the same.
+    getAttrs get (ConjunctivePhrase _ _ right) = getAttrs get right
     getAttrs _ other =
         error ("Tried getting preposition-like attributes from " ++
                "non-preposition grammar " ++ show other)
