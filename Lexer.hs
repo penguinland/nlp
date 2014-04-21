@@ -24,11 +24,13 @@ lexNodes input =
 
 wordToNodes :: String -> [Node] -> [Node]
 wordToNodes "." next = [Node Period [] next]
-wordToNodes word next =
-  let
-    result = concatMap (\f -> f word next) makePartsOfSpeech
-  in
-    if length result == 0 then error ("unknown word: " ++ word) else result
+wordToNodes word next
+  | last word == '.' = wordToNodes (init word) (wordToNodes "." next)
+  | otherwise =
+      let
+        result = concatMap (\f -> f word next) makePartsOfSpeech
+      in
+        if length result == 0 then error ("unknown word: " ++ word) else result
 
 makePartsOfSpeech :: [String -> [Node] -> [Node]]
 makePartsOfSpeech = [ makeNoun
