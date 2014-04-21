@@ -2,7 +2,7 @@
 
 module Lexer where
 
-import Data.Set
+import qualified Data.Set
 
 import Grammar
 import qualified Parser
@@ -42,31 +42,32 @@ makePartsOfSpeech = [ makeNoun
 -- particular, these are words that could be substituted for the word "the" in
 -- the phrase "the big yellow house" but could not be substituted for "big" or
 -- "yellow."
-articles :: Set String
-articles = fromList ["a", "another", "her", "his", "my", "the", "their"]
+articles :: Data.Set.Set String
+articles = Data.Set.fromList ["a", "another", "her", "his", "my", "the",
+    "their"]
 isArticle :: String -> Bool
-isArticle = flip member articles
+isArticle = flip Data.Set.member articles
 
-normalNouns :: Set String
-normalNouns = fromList ["ball", "carrot", "cat", "dip", "dog", "lace", "plate",
-    "refrigerator", "sink", "snack"]
+normalNouns :: Data.Set.Set String
+normalNouns = Data.Set.fromList ["ball", "carrot", "cat", "dip", "dog", "lace",
+    "plate", "refrigerator", "sink", "snack"]
 
-normalIntransitiveVerbs :: Set String
-normalIntransitiveVerbs = fromList ["ran", "run"]
+normalIntransitiveVerbs :: Data.Set.Set String
+normalIntransitiveVerbs = Data.Set.fromList ["ran", "run"]
 
-normalTransitiveVerbs :: Set String
-normalTransitiveVerbs = fromList ["chew", "chewed", "eat", "found", "help",
-    "love", "play", "played", "threw", "was"]
+normalTransitiveVerbs :: Data.Set.Set String
+normalTransitiveVerbs = Data.Set.fromList ["chew", "chewed", "eat", "found",
+    "help", "love", "play", "played", "threw", "was"]
 
-adjectives :: Set String
-adjectives = fromList ["big", "blue", "hungry", "red", "yellow"]
+adjectives :: Data.Set.Set String
+adjectives = Data.Set.fromList ["big", "blue", "hungry", "red", "yellow"]
 isAdjective :: String -> Bool
-isAdjective = flip member adjectives
+isAdjective = flip Data.Set.member adjectives
 
-prepositions :: Set String
-prepositions = fromList ["after", "with"]
+prepositions :: Data.Set.Set String
+prepositions = Data.Set.fromList ["after", "with"]
 isPreposition :: String -> Bool
-isPreposition = flip member prepositions
+isPreposition = flip Data.Set.member prepositions
 
 addRule :: Node -> Rule -> Node
 addRule (Node grammar rules next) newRule = Node grammar (newRule : rules) next
@@ -84,26 +85,30 @@ makeNoun word next =
     singularNounAttributes = NounAttributes True True False Third
     pluralNounAttributes = NounAttributes True True True Third
   in
-    if member word normalNouns
+    if Data.Set.member word normalNouns
     then [Node (Noun word singularNounAttributes) nounRules next]
     -- TODO: fix this for nouns that end is 's'.
-    else if last word == 's' && member (init word) normalNouns
+    else if last word == 's' && Data.Set.member (init word) normalNouns
     then [Node (Noun word pluralNounAttributes) nounRules next]
     else []
 
 makeArticle :: String -> [Node] -> [Node]
 makeArticle = makeNode isArticle Article articleRules
 
+sameConjugation :: [VerbAttributes]
+sameConjugation = [ VerbAttributes First False
+                  , VerbAttributes Second False
+                  , VerbAttributes First True
+                  , VerbAttributes Second True
+                  , VerbAttributes Third True]
+
 makeIntVerb :: String -> [Node] -> [Node]
 makeIntVerb word next =
-    if member word normalIntransitiveVerbs
-    then [ Node (Verb word (VerbAttributes First False)) intVerbRules next
-         , Node (Verb word (VerbAttributes Second False)) intVerbRules next
-         , Node (Verb word (VerbAttributes First True)) intVerbRules next
-         , Node (Verb word (VerbAttributes Second True)) intVerbRules next
-         , Node (Verb word (VerbAttributes Third True)) intVerbRules next]
+    if Data.Set.member word normalIntransitiveVerbs
+    then map (\a -> Node (Verb word a) intVerbRules next) sameConjugation
     -- TODO: fix this for verbs that end in 's'.
-    else if last word == 's' && member (init word) normalIntransitiveVerbs
+    else
+    if last word == 's' && Data.Set.member (init word) normalIntransitiveVerbs
     then [Node (Verb word (VerbAttributes Third False)) intVerbRules next]
     else []
 
@@ -113,14 +118,11 @@ makeTransVerb word next =
   let
     verbRules = intVerbRules ++ transVerbRules
   in
-    if member word normalTransitiveVerbs
-    then [ Node (Verb word (VerbAttributes First False)) verbRules next
-         , Node (Verb word (VerbAttributes Second False)) verbRules next
-         , Node (Verb word (VerbAttributes First True)) verbRules next
-         , Node (Verb word (VerbAttributes Second True)) verbRules next
-         , Node (Verb word (VerbAttributes Third True)) verbRules next]
+    if Data.Set.member word normalTransitiveVerbs
+    then map (\a -> Node (Verb word a) verbRules next) sameConjugation
     -- TODO: fix this for verbs that end in 's'.
-    else if last word == 's' && member (init word) normalTransitiveVerbs
+    else
+    if last word == 's' && Data.Set.member (init word) normalTransitiveVerbs
     then [Node (Verb word (VerbAttributes Third False)) verbRules next]
     else []
 
