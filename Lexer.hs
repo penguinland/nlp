@@ -6,9 +6,11 @@ import qualified Data.Set
 
 import Grammar
 import LexerHelpers
-import Nouns
 import qualified Parser
 import Rules
+
+import Nouns
+import Verbs
 
 lexNodes :: String -> [Node]
 lexNodes input =
@@ -52,13 +54,6 @@ articles = Data.Set.fromList ["a", "another", "her", "his", "my", "the",
 makeArticle :: String -> [Node] -> [Node]
 makeArticle = makeNode articles Article articleRules
 
-normalIntransitiveVerbs :: Data.Set.Set String
-normalIntransitiveVerbs = Data.Set.fromList ["ran", "run"]
-
-normalTransitiveVerbs :: Data.Set.Set String
-normalTransitiveVerbs = Data.Set.fromList ["chew", "chewed", "eat", "found",
-    "help", "like", "love", "play", "played", "threw", "was"]
-
 adjectives :: Data.Set.Set String
 adjectives = Data.Set.fromList ["big", "blue", "hungry", "red", "yellow"]
 makeAdjective :: String -> [Node] -> [Node]
@@ -96,38 +91,6 @@ makeNoun :: String -> [Node] -> [Node]
 makeNoun word next =
     concatMap (\(set, plural) -> makeNounCase set plural word next)
         [(normalNouns, "s"), (pluralEsNouns, "es")]
-
-sameConjugation :: [VerbAttributes]
-sameConjugation = [ VerbAttributes First False
-                  , VerbAttributes Second False
-                  , VerbAttributes Other False
-                  , VerbAttributes First True
-                  , VerbAttributes Second True
-                  , VerbAttributes Third True]
-
-makeIntVerb :: String -> [Node] -> [Node]
-makeIntVerb word next =
-    if Data.Set.member word normalIntransitiveVerbs
-    then map (\a -> Node (Verb word a) intVerbRules next) sameConjugation
-    -- TODO: fix this for verbs that end in 's'.
-    else
-    if last word == 's' && Data.Set.member (init word) normalIntransitiveVerbs
-    then [Node (Verb word (VerbAttributes Third False)) intVerbRules next]
-    else []
-
--- TODO: Can you think of a verb that *requires* a direct object?
-makeTransVerb :: String -> [Node] -> [Node]
-makeTransVerb word next =
-  let
-    verbRules = intVerbRules ++ transVerbRules
-  in
-    if Data.Set.member word normalTransitiveVerbs
-    then map (\a -> Node (Verb word a) verbRules next) sameConjugation
-    -- TODO: fix this for verbs that end in 's'.
-    else
-    if last word == 's' && Data.Set.member (init word) normalTransitiveVerbs
-    then [Node (Verb word (VerbAttributes Third False)) verbRules next]
-    else []
 
 makeMisc :: String -> [Node] -> [Node]
 makeMisc "I" next = [Node (Noun "I" (NounAttributes { canBeSubject = True
