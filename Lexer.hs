@@ -77,37 +77,7 @@ makePreposition word next =
 addRule :: Node -> Rule -> Node
 addRule (Node grammar rules next) newRule = Node grammar (newRule : rules) next
 
-makeNoun :: String -> [Node] -> [Node]
-makeNoun word next =
-    concatMap (\(set, plural) -> makeNounCase set plural word next)
-        [(normalNouns, "s"), (pluralEsNouns, "es")]
-
 makeMisc :: String -> [Node] -> [Node]
-makeMisc "I" next = [Node (Noun "I" (NounAttributes { canBeSubject = True
-                                                    , canBeObject = False
-                                                    , isPluralN = False
-                                                    , personN = First}))
-                          nounRules next]
-makeMisc "he" next = [Node (Noun "he" (NounAttributes { canBeSubject = True
-                                                      , canBeObject = False
-                                                      , isPluralN = False
-                                                      , personN = Third}))
-                           nounRules next]
-makeMisc "me" next = [Node (Noun "me" (NounAttributes { canBeSubject = False
-                                                      , canBeObject = True
-                                                      , isPluralN = False
-                                                      , personN = First}))
-                           nounRules next]
-makeMisc "we" next = [Node (Noun "we" (NounAttributes { canBeSubject = True
-                                                      , canBeObject = False
-                                                      , isPluralN = True
-                                                      , personN = First}))
-                           nounRules next]
-makeMisc "it" next = [Node (Noun "it" (NounAttributes { canBeSubject = True
-                                                      , canBeObject = True
-                                                      , isPluralN = False
-                                                      , personN = Third}))
-                           nounRules next]
 makeMisc "and" next = [Node (Conjunction "and") conjunctionRules next]
 makeMisc "when" next = [Node (Conjunction "when") conjunctionRules next]
 makeMisc _ _ = []

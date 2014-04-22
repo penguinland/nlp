@@ -2,6 +2,8 @@
 
 module Nouns where
 
+--import Control.Monad
+
 import qualified Data.Set
 import Grammar
 import LexerHelpers
@@ -29,3 +31,39 @@ makeNounCase list plural word next =
         Just root | Data.Set.member root list ->
             [Node (Noun root pluralNounAttributes) nounRules next]
         _ -> []
+
+makePronouns :: String -> [Node] -> [Node]
+makePronouns word next =
+  let
+    pronouns = Data.Set.fromList ["I", "me", "you", "he", "she", "it", "him",
+                                  "her", "we", "us", "they", "them"]
+    makePronounNode subject object plural person =
+        [Node (Noun word (NounAttributes
+         { canBeSubject = subject, canBeObject = object,
+           isPluralN = plural, personN = person })) nounRules next]
+    makePronouns' "I"    = makePronounNode True  False False First
+    makePronouns' "me"   = makePronounNode False True  False First
+    makePronouns' "you"  = makePronounNode True  True  False Second ++
+                           makePronounNode True  True  True  Second
+    makePronouns' "he"   = makePronounNode True  False False Third
+    makePronouns' "she"  = makePronounNode True  False False Third
+    makePronouns' "it"   = makePronounNode True  True  False Third
+    makePronouns' "him"  = makePronounNode False True  False Third
+    makePronouns' "her"  = makePronounNode False True  False Third
+    makePronouns' "we"   = makePronounNode True  False True  First
+    makePronouns' "us"   = makePronounNode False True  True  First
+    makePronouns' "they" = makePronounNode True  False True  Third
+    makePronouns' "them" = makePronounNode False True  True  Third
+    makePronouns' _      = error ("Non-pronoun made it into makepronouns'")
+  in
+    if Data.Set.member word pronouns
+    then makePronouns' word
+    else []
+
+makeNoun :: String -> [Node] -> [Node]
+makeNoun word next =
+    makePronouns word next ++
+    concatMap (\(set, plural) -> makeNounCase set plural word next)
+        [(normalNouns, "s"), (pluralEsNouns, "es")]
+
+
