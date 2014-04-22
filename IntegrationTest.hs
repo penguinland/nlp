@@ -70,6 +70,11 @@ testWhen =
     TestCase $ assertBool "Sentences can be conjoined"
         (isWellFormed "the dogs ran after the blue ball when I threw it.")
 
+testPredicateConjunction :: Test
+testPredicateConjunction =
+    TestCase $ assertBool "Predicates can be conjoined"
+        (isWellFormed "the dogs eat carrots and chew the blue ball.")
+
 main :: IO Counts
 main = runTestTT $ TestList [ testBasicSentence
                             , testPrepositionalPhraseUnambig
@@ -83,4 +88,5 @@ main = runTestTT $ TestList [ testBasicSentence
                             , testVerbEsConjugation
                             , testNounConjugation
                             , testWhen
+                            , testPredicateConjunction
                             ]
