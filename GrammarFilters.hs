@@ -105,6 +105,9 @@ class Attributes a where
       in
         -- Apply two arguments to getAttrs before verifying
         liftM (liftM verify) getAttrs
+    attributeExists :: Maybe a -> Bool
+    attributeExists Nothing = False
+    attributeExists (Just _) = True
 
 instance Attributes NounAttributes where
     getAttrs get (Noun _ attributes) = Just $ get attributes

@@ -35,8 +35,7 @@ conjunctionRules = []  -- TODO: fill these in
 prepositionRules :: [Rule]
 prepositionRules = [prepositionalPhraseFromANP]
 prepositionalPhraseRules :: [Rule]
-prepositionalPhraseRules = [ ]
---prepositionalPhraseRules = [ prepositionalPhraseToList ]
+prepositionalPhraseRules = [ prepositionAndPreposition ]
 prepListRules :: [Rule]
 prepListRules = []  -- TODO: fill this in
 eofRules :: [Rule]
@@ -82,6 +81,24 @@ conjoin isCorrectGrammar1 isCorrectGrammar2 isCorrectGrammar3 grammars13Match
   in
     newRule
 
+prepositionAndPreposition :: Rule
+prepositionAndPreposition =
+  let
+    prepositionsMatch left right =
+      let
+        leftAttrs :: Maybe PrepositionAttributes
+        leftAttrs = getAttrs id left
+        rightAttrs :: Maybe PrepositionAttributes
+        rightAttrs = getAttrs id right
+      in
+        attributeExists leftAttrs && leftAttrs == rightAttrs
+    conjoinPrepositions left conjunction right =
+        ConjunctivePhrase [left] conjunction right
+            Nothing Nothing (getAttrs id right)
+  in
+    conjoin isPrepositionalPhrase isConjunction isPrepositionalPhrase
+        prepositionsMatch conjoinPrepositions prepositionalPhraseRules
+
 sentenceAndSentence :: Rule
 sentenceAndSentence =
   let
@@ -101,7 +118,7 @@ predicateAndPredicate =
         rightAttrs :: Maybe VerbAttributes
         rightAttrs = getAttrs id right
       in
-        leftAttrs == rightAttrs
+        attributeExists leftAttrs && leftAttrs == rightAttrs
     conjoinPredicates left conjunction right =
         ConjunctivePhrase [left] conjunction right
             Nothing (getAttrs id right) Nothing
@@ -192,6 +209,7 @@ nounPhraseFromAdjective =
   let
     toNounPhrase adjective (NounPhrase adjectives noun) =
         NounPhrase (adjective : adjectives) noun
+    -- It's safe to use an error here; this cannot be called.
     toNounPhrase _ _ = error "Unexpected non-NounPhrase node!"
   in
     makeRule2 isAdjective isNounPhrase toNounPhrase nounPhraseRules
@@ -221,6 +239,7 @@ predicateWithPrepositionalPhrase =
     toPredicate (Predicate predicate prepPhrases) prepPhrase =
         -- Keep the order of the prepositional phrases.
         Predicate predicate (prepPhrases ++ [prepPhrase])
+        -- It's safe to use an error here; this cannot be called.
     toPredicate _ _ = error ("Unexpected nodes when merging predicate and " ++
                              "prepositional phrase!")
     isAcceptablePreposition =
@@ -235,33 +254,9 @@ anpWithPrepositionalPhrase =
         -- Keep the order of the prepositional phrases.
         ArticledNounPhrase a n (prepPhrases ++ [prepPhrase])
     toANP _ _ =
+        -- It's safe to use an error here; this cannot be called.
         error "Unexpected nodes when merging ANP and prepositional phrase!"
     isAcceptablePreposition =
         isPrepositionalPhrase `andAlso` (checkAttrs canModifyNoun)
   in
     makeRule2 isANP isAcceptablePreposition toANP anpRules
-
-{-
--- TODO: this is going to introduce massive ambiguity. Is there a way to prevent
--- that?
--- TODO: rewrite this entirely.
-prepositionalPhraseToList :: Rule
-prepositionalPhraseToList node =
-  let
-    inConjunction test (ConjunctivePhrase _ _ contents _ _ _) = test contents
-    inConjunction _ g = error ("Unexpected non-conjunction " ++ show g)
-    nodeAttributes :: Maybe PrepositionAttributes
-    nodeAttributes = liftFilter (getAttrs id) node
-    isPrepositionalList =
-        -- Because monads are associative, we don't care which way the
-        -- `andAlso`'s chain.
-        isConjunction `andAlso` (inConjunction isPrepositionalPhrase) `andAlso`
-        (\p -> nodeAttributes /= Nothing && nodeAttributes == getAttrs id p)
-    addToList newPrep (ConjunctivePhrase preps conj final Nothing Nothing
-                       prepAttrs) =
-        ConjunctivePhrase (newPrep : preps) conj final Nothing Nothing prepAttrs
-    addToList _ g = error ("Unexpected non-conjunction " ++ show g)
-  in
-    makeRule2
-        isPrepositionalPhrase isPrepositionalList addToList prepListRules node
--}
