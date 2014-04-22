@@ -41,9 +41,7 @@ data Grammar =
              | PrepositionalPhrase Grammar Grammar
             -- ConjunctivePhrase [Phrase] Conjunction Phrase
             -- We will require that all Grammars stored in a conjunctive phrase
-            -- have identical attributes, except for ArticledNounPhrases, which
-            -- will have their attributes merged, made plural, and wrapped
-            -- around the conjunctive phrase.
+            -- have identical attributes, so we just store one copy.
              | ConjunctivePhrase [Grammar] Grammar Grammar ConjunctionAttributes
              | Article String
              | Noun String NounAttributes
