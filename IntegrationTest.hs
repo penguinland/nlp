@@ -58,6 +58,11 @@ testPluralNouns =
     TestCase $ assertBool "Nouns ending in S have plurals with ES"
         (isWellFormed "bushes like classes.")
 
+testVerbEsConjugation :: Test
+testVerbEsConjugation =
+    TestCase $ assertBool "Verbs ending in S have plurals with ES"
+        (isWellFormed "he fusses." && isWellFormed "he catches the ball.")
+
 main :: IO Counts
 main = runTestTT $ TestList [ testBasicSentence
                             , testPrepositionalPhraseUnambig
@@ -68,4 +73,5 @@ main = runTestTT $ TestList [ testBasicSentence
                             , testConjugation3
                             , testConjugation4
                             , testPluralNouns
+                            , testVerbEsConjugation
                             ]
