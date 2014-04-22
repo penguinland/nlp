@@ -3,11 +3,15 @@
 module Analysis where
 
 import Grammar
+import GrammarFilters
 import Lexer
 import Parser
 
 getGrammar :: Node -> Grammar
 getGrammar (Node g _ _) = g
+
+isWellFormed :: String -> Bool
+isWellFormed = (isSingleSentence `andAlso` (not . isAmbiguous)) . lexNodes
 
 isAmbiguous :: [Node] -> Bool
 isAmbiguous =

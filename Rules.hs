@@ -8,13 +8,14 @@ import GrammarFilters
 fullSentenceRules :: [Rule]
 fullSentenceRules = []
 sentenceRules :: [Rule]
-sentenceRules = [fullSentenceFromSentence]
+sentenceRules = [ fullSentenceFromSentence
+                , sentenceAndSentence ]
 subjectRules :: [Rule]
-subjectRules = [sentenceFromSubject]
+subjectRules = [ sentenceFromSubject ]
 predicateRules :: [Rule]
-predicateRules = [predicateWithPrepositionalPhrase]
+predicateRules = [predicateWithPrepositionalPhrase, predicateAndPredicate]
 anpRules :: [Rule]
-anpRules = [subjectFromANP, anpWithPrepositionalPhrase]
+anpRules = [subjectFromANP, anpWithPrepositionalPhrase, anpAndAnp]
 rawPredicateRules :: [Rule]
 rawPredicateRules = [predicateFromRawPredicate]
 articleRules :: [Rule]
@@ -34,7 +35,8 @@ conjunctionRules = []  -- TODO: fill these in
 prepositionRules :: [Rule]
 prepositionRules = [prepositionalPhraseFromANP]
 prepositionalPhraseRules :: [Rule]
-prepositionalPhraseRules = [ prepositionalPhraseToList ]
+prepositionalPhraseRules = [ ]
+--prepositionalPhraseRules = [ prepositionalPhraseToList ]
 prepListRules :: [Rule]
 prepListRules = []  -- TODO: fill this in
 eofRules :: [Rule]
@@ -80,8 +82,35 @@ conjoin isCorrectGrammar1 isCorrectGrammar2 isCorrectGrammar3 grammars13Match
   in
     newRule
 
-nounAndNoun :: Rule
-nounAndNoun =
+sentenceAndSentence :: Rule
+sentenceAndSentence =
+  let
+    conjoinSentences left conjunction right =
+        ConjunctivePhrase [left] conjunction right Nothing Nothing Nothing
+  in
+    conjoin isSentence isConjunction isSentence (const . const $ True)
+        conjoinSentences sentenceRules
+
+predicateAndPredicate :: Rule
+predicateAndPredicate =
+  let
+    verbsMatch left right =
+      let
+        leftAttrs :: Maybe VerbAttributes
+        leftAttrs = getAttrs id left
+        rightAttrs :: Maybe VerbAttributes
+        rightAttrs = getAttrs id right
+      in
+        leftAttrs == rightAttrs
+    conjoinPredicates left conjunction right =
+        ConjunctivePhrase [left] conjunction right
+            Nothing (getAttrs id right) Nothing
+  in
+    conjoin isPredicate isConjunction isPredicate verbsMatch
+        conjoinPredicates sentenceRules
+
+nounlikeAndNounlike :: (Grammar -> Bool) -> [Rule] -> Rule
+nounlikeAndNounlike nounlike rules =
   let
     nounsMatch left right =
       let
@@ -100,7 +129,18 @@ nounAndNoun =
         ConjunctivePhrase [left] conjunction right
             (pluralize right) Nothing Nothing
   in
-     conjoin isNoun isConjunction isNoun nounsMatch conjoinNouns nounRules
+     conjoin nounlike isConjunction nounlike nounsMatch conjoinNouns rules
+
+nounAndNoun :: Rule
+nounAndNoun = nounlikeAndNounlike isNoun nounRules
+
+-- TODO: is there ever a time to conjoin noun phrases in which they're not both
+-- articled?
+--nounPhraseAndNounPhrase :: Rule
+--nounPhraseAndNounPhrase = nounlikeAndNounlike isNounPhrase nounPhraseRules
+
+anpAndAnp :: Rule
+anpAndAnp = nounlikeAndNounlike isANP anpRules
 
 infinitiveRule :: Rule
 infinitiveRule =
@@ -201,6 +241,7 @@ anpWithPrepositionalPhrase =
   in
     makeRule2 isANP isAcceptablePreposition toANP anpRules
 
+{-
 -- TODO: this is going to introduce massive ambiguity. Is there a way to prevent
 -- that?
 -- TODO: rewrite this entirely.
@@ -223,3 +264,4 @@ prepositionalPhraseToList node =
   in
     makeRule2
         isPrepositionalPhrase isPrepositionalList addToList prepListRules node
+-}

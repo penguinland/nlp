@@ -7,9 +7,6 @@ import GrammarFilters
 import Lexer
 import Test.HUnit
 
-isWellFormed :: String -> Bool
-isWellFormed = (isSingleSentence `andAlso` (not . isAmbiguous)) . lexNodes
-
 isAmbiguousSentence :: String -> Bool
 isAmbiguousSentence = (isSingleSentence `andAlso` (isAmbiguous)) . lexNodes
 
@@ -66,12 +63,12 @@ testVerbEsConjugation =
 testNounConjugation :: Test
 testNounConjugation =
     TestCase $ assertBool "Nouns can be conjoined"
-        (isWellFormed "the dog and cat play in the yard.")
+        (isSingleSentence . lexNodes $ "the dog and cat play in the yard.")
 
 testWhen :: Test
 testWhen =
-    TestCase $ assertBool "Nouns can be conjoined"
-        (isWellFormed "he ran after the blue ball when I threw it.")
+    TestCase $ assertBool "Sentences can be conjoined"
+        (isWellFormed "the dogs ran after the blue ball when I threw it.")
 
 main :: IO Counts
 main = runTestTT $ TestList [ testBasicSentence

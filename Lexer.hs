@@ -97,6 +97,11 @@ makeMisc "me" next = [Node (Noun "me" (NounAttributes { canBeSubject = False
                                                       , isPluralN = False
                                                       , personN = First}))
                            nounRules next]
+makeMisc "we" next = [Node (Noun "we" (NounAttributes { canBeSubject = True
+                                                      , canBeObject = False
+                                                      , isPluralN = True
+                                                      , personN = First}))
+                           nounRules next]
 makeMisc "it" next = [Node (Noun "it" (NounAttributes { canBeSubject = True
                                                       , canBeObject = True
                                                       , isPluralN = False
