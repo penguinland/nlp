@@ -10,7 +10,7 @@ import Rules
 -- Nouns whose plural appends an "s"
 normalNouns :: Data.Set.Set String
 normalNouns = Data.Set.fromList ["ball", "carrot", "cat", "dip", "dog", "lace",
-    "plate", "refrigerator", "sink", "snack", "yard"]
+    "mile", "plate", "refrigerator", "sink", "snack", "yard"]
 
 -- Nouns whose plural appends an "es"
 pluralEsNouns :: Data.Set.Set String

@@ -9,7 +9,7 @@ import LexerHelpers
 import Rules
 
 normalIntransitiveVerbs :: Data.Set.Set String
-normalIntransitiveVerbs = Data.Set.fromList ["ran", "run"]
+normalIntransitiveVerbs = Data.Set.fromList ["ran", "run", "sleep"]
 
 normalTransitiveVerbs :: Data.Set.Set String
 normalTransitiveVerbs = Data.Set.fromList ["chew", "chewed", "eat", "found",
