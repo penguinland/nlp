@@ -19,46 +19,45 @@ isFullSentence _ = False
 
 isSentence :: Grammar -> Bool
 isSentence (Sentence _ _) = True
-isSentence (ConjunctivePhrase _ _ end) = isSentence end
+isSentence (ConjunctivePhrase _ _ end _ _ _) = isSentence end
 isSentence _ = False
 
 isSubject :: Grammar -> Bool
 isSubject (Subject _) = True
-isSubject (ConjunctivePhrase _ _ end) = isSubject end
 isSubject _ = False
 
 isANP :: Grammar -> Bool
 isANP (ArticledNounPhrase _ _ _) = True
-isANP (ConjunctivePhrase _ _ end) = isANP end
+isANP (ConjunctivePhrase _ _ end _ _ _) = isANP end
 isANP _ = False
 
 isNounPhrase :: Grammar -> Bool
 isNounPhrase (NounPhrase _ _) = True
-isNounPhrase (ConjunctivePhrase _ _ end) = isNounPhrase end
+isNounPhrase (ConjunctivePhrase _ _ end _ _ _) = isNounPhrase end
 isNounPhrase _ = False
 
 isPredicate :: Grammar -> Bool
 isPredicate (Predicate _ _) = True
-isPredicate (ConjunctivePhrase _ _ end) = isPredicate end
+isPredicate (ConjunctivePhrase _ _ end _ _ _) = isPredicate end
 isPredicate _ = False
 
 isRawPredicate :: Grammar -> Bool
 isRawPredicate (RawPredicate _ _) = True
-isRawPredicate (ConjunctivePhrase _ _ end) = isRawPredicate end
+isRawPredicate (ConjunctivePhrase _ _ end _ _ _) = isRawPredicate end
 isRawPredicate _ = False
 
 isInfinitive :: Grammar -> Bool
 isInfinitive (Infinitive _ _ _) = True
-isInfinitive (ConjunctivePhrase _ _ end) = isInfinitive end
+isInfinitive (ConjunctivePhrase _ _ end _ _ _) = isInfinitive end
 isInfinitive _ = False
 
 isPrepositionalPhrase :: Grammar -> Bool
 isPrepositionalPhrase (PrepositionalPhrase _ _) = True
-isPrepositionalPhrase (ConjunctivePhrase _ _ end) = isPrepositionalPhrase end
+isPrepositionalPhrase (ConjunctivePhrase _ _ end _ _ _) = isPrepositionalPhrase end
 isPrepositionalPhrase _ = False
 
 isConjunctivePhrase :: Grammar -> Bool
-isConjunctivePhrase (ConjunctivePhrase _ _ _) = True
+isConjunctivePhrase (ConjunctivePhrase _ _ _ _ _ _) = True
 isConjunctivePhrase _ = False
 
 isArticle :: Grammar -> Bool
@@ -67,12 +66,12 @@ isArticle _ = False
 
 isNoun :: Grammar -> Bool
 isNoun (Noun _ _) = True
-isNoun (ConjunctivePhrase _ _ end) = isNoun end
+isNoun (ConjunctivePhrase _ _ end _ _ _) = isNoun end
 isNoun _ = False
 
 isAdjective :: Grammar -> Bool
 isAdjective (Adjective _) = True
-isAdjective (ConjunctivePhrase _ _ end) = isAdjective end
+isAdjective (ConjunctivePhrase _ _ end _ _ _) = isAdjective end
 isAdjective _ = False
 
 isConjunction :: Grammar -> Bool
@@ -113,9 +112,7 @@ instance Attributes NounAttributes where
     getAttrs get (ArticledNounPhrase _ nounphrase _) = getAttrs get nounphrase
     getAttrs get (Infinitive _ _ attributes)  = Just $ get attributes
     getAttrs get (Subject anp) = getAttrs get anp
-    -- We don't include conjunctive phrases here because they will be wrapped in
-    -- their own ANP. You should never need to try getting noun attributes from
-    -- a conjunctive phrase.
+    getAttrs get (ConjunctivePhrase _ _ _ (Just attrs) _ _) = Just $ get attrs
     getAttrs _ _ = Nothing
 
 
@@ -123,17 +120,11 @@ instance Attributes VerbAttributes where
     getAttrs get (Verb _ attributes) = Just $ get attributes
     getAttrs get (RawPredicate verb _) = getAttrs get verb
     getAttrs get (Predicate rawPred _) = getAttrs get rawPred
-    -- For a conjunctive phrase to be created, we require all pieces of it to
-    -- have identical attributes. Just check the last one, because the rest will
-    -- be the same.
-    getAttrs get (ConjunctivePhrase _ _ right) = getAttrs get right
+    getAttrs get (ConjunctivePhrase _ _ _ _ (Just attrs) _) = Just $ get attrs
     getAttrs _ _ = Nothing
 
 instance Attributes PrepositionAttributes where
     getAttrs get (Preposition _ attributes) = Just $ get attributes
     getAttrs get (PrepositionalPhrase preposition _) = getAttrs get preposition
-    -- For a conjunctive phrase to be created, we require all pieces of it to
-    -- have identical attributes. Just check the last one, because the rest will
-    -- be the same.
-    getAttrs get (ConjunctivePhrase _ _ right) = getAttrs get right
+    getAttrs get (ConjunctivePhrase _ _ _ _ _ (Just attrs)) = Just $ get attrs
     getAttrs _ _ = Nothing

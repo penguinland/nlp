@@ -63,6 +63,11 @@ testVerbEsConjugation =
     TestCase $ assertBool "Verbs ending in S have plurals with ES"
         (isWellFormed "he fusses." && isWellFormed "he catches the ball.")
 
+testNounConjugation :: Test
+testNounConjugation =
+    TestCase $ assertBool "Nouns can be conjoined"
+        (isWellFormed "the dog and cat play in the yard.")
+
 main :: IO Counts
 main = runTestTT $ TestList [ testBasicSentence
                             , testPrepositionalPhraseUnambig
@@ -74,4 +79,5 @@ main = runTestTT $ TestList [ testBasicSentence
                             , testConjugation4
                             , testPluralNouns
                             , testVerbEsConjugation
+                            , testNounConjugation
                             ]

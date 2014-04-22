@@ -45,6 +45,8 @@ data Grammar =
             -- will have their attributes merged, made plural, and wrapped
             -- around the conjunctive phrase.
              | ConjunctivePhrase [Grammar] Grammar Grammar
+                   (Maybe NounAttributes) (Maybe VerbAttributes)
+                   (Maybe PrepositionAttributes)
              | Article String
              | Noun String NounAttributes
              | Adjective String

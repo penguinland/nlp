@@ -22,7 +22,7 @@ articleRules = [articledNounPhraseFromArticle]
 nounPhraseRules :: [Rule]
 nounPhraseRules = [articledNounPhraseFromNounPhrase]
 nounRules :: [Rule]
-nounRules = [nounPhraseFromNoun]
+nounRules = [nounPhraseFromNoun, nounAndNoun]
 adjectiveRules :: [Rule]
 adjectiveRules = [nounPhraseFromAdjective]
 intVerbRules :: [Rule]
@@ -56,15 +56,52 @@ makeRule2 :: (Grammar -> Bool) -> (Grammar -> Bool) ->
              (Grammar -> Grammar -> Grammar) -> [Rule] -> Rule
 makeRule2 isCorrectGrammar1 isCorrectGrammar2 toNewGrammar nextRules =
   let
-    newRule (Node first _ seconds)
-      | isCorrectGrammar1 first =
-            map (toNewNode first) . filter (liftFilter isCorrectGrammar2) $
-                seconds
-    newRule _ = []
     toNewNode first (Node second _ next) =
         Node (toNewGrammar first second) nextRules next
+    newRule (Node first _ seconds) =
+        [toNewNode first second | isCorrectGrammar1 first,
+         second <- seconds, liftFilter isCorrectGrammar2 second]
   in
     newRule
+
+-- This is for joining nodes together with "and"
+conjoin :: (Grammar -> Bool) -> (Grammar -> Bool) -> (Grammar -> Bool) ->
+           (Grammar -> Grammar -> Bool) ->
+           (Grammar -> Grammar -> Grammar -> Grammar) -> [Rule] -> Rule
+conjoin isCorrectGrammar1 isCorrectGrammar2 isCorrectGrammar3 grammars13Match
+        toNewGrammar nextRules =
+  let
+    toNewNode first second third next =
+        Node (toNewGrammar first second third) nextRules next
+    newRule (Node firstG _ secondNs) =
+        [toNewNode firstG secondG thirdG nextNs | isCorrectGrammar1 firstG,
+         (Node secondG _ thirdNs) <- secondNs, isCorrectGrammar2 secondG,
+         (Node thirdG _ nextNs) <- thirdNs, isCorrectGrammar3 thirdG,
+         grammars13Match firstG thirdG]
+  in
+    newRule
+
+nounAndNoun :: Rule
+nounAndNoun =
+  let
+    nounsMatch left right =
+      let
+        leftAttrs :: Maybe NounAttributes
+        leftAttrs = getAttrs id left
+        rightAttrs :: Maybe NounAttributes
+        rightAttrs = getAttrs id right
+      in
+        leftAttrs == rightAttrs
+    pluralize noun =
+      let
+        Just attrs = getAttrs id noun
+      in
+        Just (attrs{isPluralN = True})
+    conjoinNouns left conjunction right =
+        ConjunctivePhrase [left] conjunction right
+            (pluralize right) Nothing Nothing
+  in
+     conjoin isNoun isConjunction isNoun nounsMatch conjoinNouns nounRules
 
 infinitiveRule :: Rule
 infinitiveRule =
@@ -176,7 +213,7 @@ anpWithPrepositionalPhrase =
 prepositionalPhraseToList :: Rule
 prepositionalPhraseToList node =
   let
-    inConjunction test (ConjunctivePhrase _ _ contents) = test contents
+    inConjunction test (ConjunctivePhrase _ _ contents _ _ _) = test contents
     inConjunction _ g = error ("Unexpected non-conjunction " ++ show g)
     nodeAttributes :: Maybe PrepositionAttributes
     nodeAttributes = liftFilter (getAttrs id) node
@@ -185,8 +222,9 @@ prepositionalPhraseToList node =
         -- `andAlso`'s chain.
         isConjunction `andAlso` (inConjunction isPrepositionalPhrase) `andAlso`
         (\p -> nodeAttributes /= Nothing && nodeAttributes == getAttrs id p)
-    addToList newPrep (ConjunctivePhrase preps conj final) =
-        ConjunctivePhrase (newPrep : preps) conj final
+    addToList newPrep (ConjunctivePhrase preps conj final Nothing Nothing
+                       prepAttrs) =
+        ConjunctivePhrase (newPrep : preps) conj final Nothing Nothing prepAttrs
     addToList _ g = error ("Unexpected non-conjunction " ++ show g)
   in
     makeRule2
