@@ -44,9 +44,7 @@ data Grammar =
             -- have identical attributes, except for ArticledNounPhrases, which
             -- will have their attributes merged, made plural, and wrapped
             -- around the conjunctive phrase.
-             | ConjunctivePhrase [Grammar] Grammar Grammar
-                   (Maybe NounAttributes) (Maybe VerbAttributes)
-                   (Maybe PrepositionAttributes)
+             | ConjunctivePhrase [Grammar] Grammar Grammar ConjunctionAttributes
              | Article String
              | Noun String NounAttributes
              | Adjective String
@@ -76,4 +74,11 @@ data PrepositionAttributes = PrepositionAttributes { canModifyVerb :: Bool
                                                    , canModifyNoun :: Bool
                                                    } deriving (Eq)
 instance Show PrepositionAttributes where
+    show _ = ""  -- Don't bother showing the attributes when showing a Grammar
+
+data ConjunctionAttributes = NounConjunction NounAttributes
+                           | VerbConjunction VerbAttributes
+                           | PrepConjunction PrepositionAttributes
+                           | OtherConjunction deriving (Eq)
+instance Show ConjunctionAttributes where
     show _ = ""  -- Don't bother showing the attributes when showing a Grammar

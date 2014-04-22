@@ -93,8 +93,10 @@ prepositionAndPreposition =
       in
         attributeExists leftAttrs && leftAttrs == rightAttrs
     conjoinPrepositions left conjunction right =
-        ConjunctivePhrase [left] conjunction right
-            Nothing Nothing (getAttrs id right)
+      let
+        Just attributes = getAttrs id right
+      in
+        ConjunctivePhrase [left] conjunction right (PrepConjunction attributes)
   in
     conjoin isPrepositionalPhrase isConjunction isPrepositionalPhrase
         prepositionsMatch conjoinPrepositions prepositionalPhraseRules
@@ -103,7 +105,7 @@ sentenceAndSentence :: Rule
 sentenceAndSentence =
   let
     conjoinSentences left conjunction right =
-        ConjunctivePhrase [left] conjunction right Nothing Nothing Nothing
+        ConjunctivePhrase [left] conjunction right OtherConjunction
   in
     conjoin isSentence isConjunction isSentence (const . const $ True)
         conjoinSentences sentenceRules
@@ -120,8 +122,10 @@ predicateAndPredicate =
       in
         attributeExists leftAttrs && leftAttrs == rightAttrs
     conjoinPredicates left conjunction right =
-        ConjunctivePhrase [left] conjunction right
-            Nothing (getAttrs id right) Nothing
+      let
+        Just attributes = getAttrs id right
+      in
+        ConjunctivePhrase [left] conjunction right (VerbConjunction attributes)
   in
     conjoin isPredicate isConjunction isPredicate verbsMatch
         conjoinPredicates sentenceRules
@@ -141,10 +145,10 @@ nounlikeAndNounlike nounlike rules =
       let
         Just attrs = getAttrs id noun
       in
-        Just (attrs{isPluralN = True})
+        attrs{isPluralN = True}
     conjoinNouns left conjunction right =
         ConjunctivePhrase [left] conjunction right
-            (pluralize right) Nothing Nothing
+            (NounConjunction $ pluralize right)
   in
      conjoin nounlike isConjunction nounlike nounsMatch conjoinNouns rules
 
