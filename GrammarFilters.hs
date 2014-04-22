@@ -19,34 +19,42 @@ isFullSentence _ = False
 
 isSentence :: Grammar -> Bool
 isSentence (Sentence _ _) = True
+isSentence (ConjunctivePhrase _ _ end) = isSentence end
 isSentence _ = False
 
 isSubject :: Grammar -> Bool
 isSubject (Subject _) = True
+isSubject (ConjunctivePhrase _ _ end) = isSubject end
 isSubject _ = False
 
 isANP :: Grammar -> Bool
 isANP (ArticledNounPhrase _ _ _) = True
+isANP (ConjunctivePhrase _ _ end) = isANP end
 isANP _ = False
 
 isNounPhrase :: Grammar -> Bool
 isNounPhrase (NounPhrase _ _) = True
+isNounPhrase (ConjunctivePhrase _ _ end) = isNounPhrase end
 isNounPhrase _ = False
 
 isPredicate :: Grammar -> Bool
 isPredicate (Predicate _ _) = True
+isPredicate (ConjunctivePhrase _ _ end) = isPredicate end
 isPredicate _ = False
 
 isRawPredicate :: Grammar -> Bool
 isRawPredicate (RawPredicate _ _) = True
+isRawPredicate (ConjunctivePhrase _ _ end) = isRawPredicate end
 isRawPredicate _ = False
 
 isInfinitive :: Grammar -> Bool
 isInfinitive (Infinitive _ _ _) = True
+isInfinitive (ConjunctivePhrase _ _ end) = isInfinitive end
 isInfinitive _ = False
 
 isPrepositionalPhrase :: Grammar -> Bool
 isPrepositionalPhrase (PrepositionalPhrase _ _) = True
+isPrepositionalPhrase (ConjunctivePhrase _ _ end) = isPrepositionalPhrase end
 isPrepositionalPhrase _ = False
 
 isConjunctivePhrase :: Grammar -> Bool
@@ -59,16 +67,19 @@ isArticle _ = False
 
 isNoun :: Grammar -> Bool
 isNoun (Noun _ _) = True
+isNoun (ConjunctivePhrase _ _ end) = isNoun end
 isNoun _ = False
 
 isAdjective :: Grammar -> Bool
 isAdjective (Adjective _) = True
+isAdjective (ConjunctivePhrase _ _ end) = isAdjective end
 isAdjective _ = False
 
 isConjunction :: Grammar -> Bool
 isConjunction (Conjunction _) = True
 isConjunction _ = False
 
+-- TODO: can you have conjunctions of verbs that are not in predicates?
 isVerb :: Grammar -> Bool
 isVerb (Verb _ _) = True
 isVerb _ = False
