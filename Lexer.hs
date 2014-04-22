@@ -60,22 +60,11 @@ makeAdjective :: String -> [Node] -> [Node]
 makeAdjective = makeNode adjectives Adjective adjectiveRules
 
 prepositions :: Data.Set.Set String
-prepositions = Data.Set.fromList ["after", "with"]
+prepositions = Data.Set.fromList ["after", "in", "of", "with"]
 -- TODO: refactor this, maybe?.
 permissivePreposition :: PrepositionAttributes
-permissivePreposition = PrepositionAttributes True True True True
+permissivePreposition = PrepositionAttributes True True
 makePreposition :: String -> [Node] -> [Node]
--- "When" should always be followed by a sentence when used as a prepositional
--- phrase.
-makePreposition "when" next =
-    [Node (Preposition "when" permissivePreposition{canContainNoun = False})
-     prepositionRules next]
-makePreposition "of" next =
-    [Node (Preposition "of" permissivePreposition{canContainSentence = False})
-     prepositionRules next]
-makePreposition "in" next =
-    [Node (Preposition "in" permissivePreposition{canContainSentence = False})
-     prepositionRules next]
 -- "To" might be an infinitive.
 makePreposition "to" next =
     [Node (Preposition "to" permissivePreposition)
@@ -114,4 +103,5 @@ makeMisc "it" next = [Node (Noun "it" (NounAttributes { canBeSubject = True
                                                       , personN = Third}))
                            nounRules next]
 makeMisc "and" next = [Node (Conjunction "and") conjunctionRules next]
+makeMisc "when" next = [Node (Conjunction "when") conjunctionRules next]
 makeMisc _ _ = []

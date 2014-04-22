@@ -32,8 +32,7 @@ transVerbRules = [rawPredicateFromTransVerb]
 conjunctionRules :: [Rule]
 conjunctionRules = []  -- TODO: fill these in
 prepositionRules :: [Rule]
-prepositionRules = [ prepositionalPhraseFromANP
-                   , prepositionalPhraseFromSentence ]
+prepositionRules = [prepositionalPhraseFromANP]
 prepositionalPhraseRules :: [Rule]
 prepositionalPhraseRules = [ prepositionalPhraseToList ]
 prepListRules :: [Rule]
@@ -125,13 +124,7 @@ rawPredicateFromIntVerb =
 
 prepositionalPhraseFromANP :: Rule
 prepositionalPhraseFromANP =
-    makeRule2 (isPreposition `andAlso` (checkAttrs canContainNoun))
-        isANP PrepositionalPhrase prepositionalPhraseRules
-
-prepositionalPhraseFromSentence :: Rule
-prepositionalPhraseFromSentence =
-    makeRule2 (isPreposition `andAlso` (checkAttrs canContainSentence))
-        isSentence PrepositionalPhrase prepositionalPhraseRules
+    makeRule2 isPreposition isANP PrepositionalPhrase prepositionalPhraseRules
 
 rawPredicateFromTransVerb :: Rule
 rawPredicateFromTransVerb =
@@ -210,6 +203,7 @@ anpWithPrepositionalPhrase =
 
 -- TODO: this is going to introduce massive ambiguity. Is there a way to prevent
 -- that?
+-- TODO: rewrite this entirely.
 prepositionalPhraseToList :: Rule
 prepositionalPhraseToList node =
   let

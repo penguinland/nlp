@@ -68,6 +68,11 @@ testNounConjugation =
     TestCase $ assertBool "Nouns can be conjoined"
         (isWellFormed "the dog and cat play in the yard.")
 
+testWhen :: Test
+testWhen =
+    TestCase $ assertBool "Nouns can be conjoined"
+        (isWellFormed "he ran after the blue ball when I threw it.")
+
 main :: IO Counts
 main = runTestTT $ TestList [ testBasicSentence
                             , testPrepositionalPhraseUnambig
@@ -80,4 +85,5 @@ main = runTestTT $ TestList [ testBasicSentence
                             , testPluralNouns
                             , testVerbEsConjugation
                             , testNounConjugation
+                            , testWhen
                             ]

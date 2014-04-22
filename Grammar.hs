@@ -74,8 +74,6 @@ instance Show VerbAttributes where
 
 data PrepositionAttributes = PrepositionAttributes { canModifyVerb :: Bool
                                                    , canModifyNoun :: Bool
-                                                   , canContainSentence :: Bool
-                                                   , canContainNoun :: Bool
                                                    } deriving (Eq)
 instance Show PrepositionAttributes where
     show _ = ""  -- Don't bother showing the attributes when showing a Grammar
