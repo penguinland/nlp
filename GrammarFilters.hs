@@ -99,12 +99,13 @@ isEOF _ = False
 class Attributes a where
     getAttrs :: (a -> b) -> Grammar -> Maybe b
     checkAttrs :: (a -> Bool) -> Grammar -> Bool
-    checkAttrs getter grammar =
+    checkAttrs =
       let
         verify Nothing = False
         verify (Just x) = x
       in
-        verify (getAttrs getter grammar)
+        -- Apply two arguments to getAttrs before verifying
+        liftM (liftM verify) getAttrs
 
 instance Attributes NounAttributes where
     getAttrs get (Noun _ attributes) = Just $ get attributes
