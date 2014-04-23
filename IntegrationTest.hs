@@ -80,6 +80,11 @@ testPrepPhraseConjunction =
     TestCase $ assertBool "Prepositional phrases can be conjoined"
         (isWellFormed "the dogs eat in the yard and with me.")
 
+testAdjectiveConjunction :: Test
+testAdjectiveConjunction =
+    TestCase $ assertBool "Adjectives can be conjoined"
+        (isWellFormed "I like the blue and yellow ball.")
+
 main :: IO Counts
 main = runTestTT $ TestList [ testBasicSentence
                             , testPrepositionalPhraseUnambig
@@ -95,4 +100,5 @@ main = runTestTT $ TestList [ testBasicSentence
                             , testWhen
                             , testPredicateConjunction
                             , testPrepPhraseConjunction
+                            , testAdjectiveConjunction
                             ]

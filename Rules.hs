@@ -25,7 +25,7 @@ nounPhraseRules = [articledNounPhraseFromNounPhrase]
 nounRules :: [Rule]
 nounRules = [nounPhraseFromNoun, nounAndNoun]
 adjectiveRules :: [Rule]
-adjectiveRules = [nounPhraseFromAdjective]
+adjectiveRules = [nounPhraseFromAdjective, adjectiveAndAdjective]
 intVerbRules :: [Rule]
 intVerbRules = [rawPredicateFromIntVerb]
 transVerbRules :: [Rule]
@@ -109,6 +109,15 @@ sentenceAndSentence =
   in
     conjoin isSentence isConjunction isSentence (const . const $ True)
         conjoinSentences sentenceRules
+
+adjectiveAndAdjective :: Rule
+adjectiveAndAdjective =
+  let
+    conjoinAdjectives left conjunction right =
+        ConjunctivePhrase [left] conjunction right OtherConjunction
+  in
+    conjoin isAdjective isConjunction isAdjective (const . const $ True)
+        conjoinAdjectives adjectiveRules
 
 predicateAndPredicate :: Rule
 predicateAndPredicate =
