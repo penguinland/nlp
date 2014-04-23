@@ -2,6 +2,8 @@
 
 module Rules where
 
+import Control.Monad
+
 import Grammar
 import GrammarFilters
 
@@ -235,7 +237,8 @@ sentenceFromSubject node =
     subjectVerbAgreement :: Grammar -> Bool
     subjectVerbAgreement predicate =
         subjectPerson /= Nothing && subjectNumber /= Nothing &&
-        subjectPerson == getAttrs personV predicate &&
+        (liftM2 (||) (Just Any ==) (subjectPerson ==))
+            (getAttrs personV predicate) &&
         subjectNumber == getAttrs isPluralV predicate
   in
     makeRule2 isSubject (isPredicate `andAlso` subjectVerbAgreement)

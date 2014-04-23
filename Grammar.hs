@@ -54,7 +54,8 @@ data Grammar =
     deriving(Show, Eq)
 
 -- Other is for verbs that aren't conjugated, like infinitives and gerunds.
-data Person = First | Second | Third | Other deriving (Eq, Show)
+-- Any is for verbs that work in any person, like past tense verbs.
+data Person = First | Second | Third | Other | Any deriving (Eq, Show)
 
 data NounAttributes = NounAttributes { canBeSubject :: Bool
                                      , canBeObject :: Bool
