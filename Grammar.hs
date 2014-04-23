@@ -63,8 +63,12 @@ data NounAttributes = NounAttributes { canBeSubject :: Bool
 instance Show NounAttributes where
     show _ = ""  -- Don't bother showing the attributes when showing a Grammar
 
+-- TODO: should infinitives be on this list? What about gerunds?
+data VerbTense = Present | Past deriving (Eq, Show)
+
 data VerbAttributes = VerbAttributes { personV :: Person
-                                     , isPluralV :: Bool } deriving (Eq)
+                                     , isPluralV :: Bool
+                                     , tense :: VerbTense } deriving (Eq)
 instance Show VerbAttributes where
     show _ = ""  -- Don't bother showing the attributes when showing a Grammar
 
