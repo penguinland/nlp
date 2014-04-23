@@ -9,11 +9,11 @@ import LexerHelpers
 import Rules
 
 normalIntransitiveVerbs :: Data.Set.Set String
-normalIntransitiveVerbs = Data.Set.fromList ["ran", "run", "sleep"]
+normalIntransitiveVerbs = Data.Set.fromList ["ran", "run", "sleep", "went"]
 
 normalTransitiveVerbs :: Data.Set.Set String
 normalTransitiveVerbs = Data.Set.fromList ["chew", "chewed", "eat", "found",
-    "help", "like", "love", "play", "played", "threw", "was"]
+    "help", "like", "love", "play", "played", "threw", "wanted", "was"]
 
 -- Verbs where the proper conjugation of "it ___" is to add an "es" to the verb
 withEsTransitiveVerbs :: Data.Set.Set String

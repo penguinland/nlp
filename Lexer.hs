@@ -79,4 +79,5 @@ addRule (Node grammar rules next) newRule = Node grammar (newRule : rules) next
 makeMisc :: String -> [Node] -> [Node]
 makeMisc "and" next = [Node (Conjunction "and") conjunctionRules next]
 makeMisc "when" next = [Node (Conjunction "when") conjunctionRules next]
+makeMisc "because" next = [Node (Conjunction "because") conjunctionRules next]
 makeMisc _ _ = []

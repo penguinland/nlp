@@ -27,6 +27,15 @@ isAmbiguous =
 isSingleSentence :: [Node] -> Bool
 isSingleSentence = isSingleSentence' . extractSentences
 
+isText :: [Node] -> Bool
+isText =
+  let
+    isText' (Node EOF _ _) = True
+    isText' (Node (FullSentence _) _ next) = isText next
+    isText' _ = False
+  in
+    all isText' . extractSentences
+
 -- Note: it's okay if the sentence is ambiguous, as long as all possible parses
 -- result in a single sentence.
 isSingleSentence' :: [Node] -> Bool

@@ -11,12 +11,17 @@ import Rules
 
 -- Nouns whose plural appends an "s"
 normalNouns :: Data.Set.Set String
-normalNouns = Data.Set.fromList ["ball", "carrot", "cat", "dip", "dog", "lace",
-    "mile", "plate", "refrigerator", "sink", "snack", "yard"]
+normalNouns = Data.Set.fromList ["ball", "carrot", "cat", "chips", "dip", "dog",
+    "food", "ham", "lace", "mile", "plate", "refrigerator", "sink", "snack",
+    "store", "yard"]
 
 -- Nouns whose plural appends an "es"
 pluralEsNouns :: Data.Set.Set String
 pluralEsNouns = Data.Set.fromList ["bush", "class"]
+
+-- Proper Nouns
+properNouns :: Data.Set.Set String
+properNouns = Data.Set.fromList ["Sam", "Zac"]
 
 singularNounAttributes :: NounAttributes
 singularNounAttributes = NounAttributes True True False Third
@@ -60,9 +65,16 @@ makePronouns word next =
     then makePronouns' word
     else []
 
+makeProperNoun :: String -> [Node] -> [Node]
+makeProperNoun word next =
+    if Data.Set.member word properNouns
+    then [Node (Noun word singularNounAttributes) nounRules next]
+    else []
+
 makeNoun :: String -> [Node] -> [Node]
 makeNoun word next =
     makePronouns word next ++
+    makeProperNoun word next ++
     concatMap (\(set, plural) -> makeNounCase set plural word next)
         [(normalNouns, "s"), (pluralEsNouns, "es")]
 
