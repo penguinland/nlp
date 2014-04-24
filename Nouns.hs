@@ -10,9 +10,9 @@ import Rules
 
 -- Nouns whose plural appends an "s"
 normalNouns :: Data.Set.Set String
-normalNouns = Data.Set.fromList ["ball", "carrot", "cat", "chips", "dip", "dog",
-    "food", "ham", "lace", "mile", "plate", "refrigerator", "sink", "snack",
-    "snowman", "store", "yard"]
+normalNouns = Data.Set.fromList ["ball", "bed", "carrot", "can", "cat", "chips",
+    "dip", "dog", "food", "ham", "head", "lace", "mile", "plate",
+    "refrigerator", "sink", "snack", "snowman", "store", "yard"]
 
 -- Nouns whose plural appends an "es"
 pluralEsNouns :: Data.Set.Set String
@@ -21,6 +21,10 @@ pluralEsNouns = Data.Set.fromList ["bush", "class"]
 -- Nouns whose plural changes a "y" to an "ies"
 pluralIesNouns :: Data.Set.Set String
 pluralIesNouns = Data.Set.fromList ["baby", "city"]
+
+-- Nouns whose plural changes an "is" to an "es"
+pluralIsEsNouns :: Data.Set.Set String
+pluralIsEsNouns = Data.Set.fromList ["analysis", "thesis"]
 
 -- Proper Nouns
 properNouns :: Data.Set.Set String
@@ -63,7 +67,7 @@ makePronouns word next =
     makePronouns' "us"   = makePronounNode False True  Plural   FirstPerson
     makePronouns' "they" = makePronounNode True  False Plural   ThirdPerson
     makePronouns' "them" = makePronounNode False True  Plural   ThirdPerson
-    makePronouns' _      = error ("Non-pronoun made it into makepronouns'")
+    makePronouns' _      = error ("Non-pronoun made it into makePronouns'")
   in
     if Data.Set.member word pronouns
     then makePronouns' word
@@ -82,4 +86,4 @@ makeNoun word next =
     concatMap (\(set, plural, singular) ->
                makeNounCase set plural singular word next)
         [(normalNouns, "s", ""), (pluralEsNouns, "es", ""),
-         (pluralIesNouns, "ies", "y")]
+         (pluralIesNouns, "ies", "y"), (pluralIsEsNouns, "es", "is")]
