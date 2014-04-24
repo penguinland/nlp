@@ -50,6 +50,7 @@ makePartsOfSpeech = [ makeNoun
 -- particular, these are words that could be substituted for the word "the" in
 -- the phrase "the big yellow house" but could not be substituted for "big" or
 -- "yellow."
+-- TODO: eventually split out articles and possessive adjectives, maybe?
 articles :: Data.Set.Set String
 articles = Data.Set.fromList ["a", "another", "her", "his", "my", "the",
     "their"]
