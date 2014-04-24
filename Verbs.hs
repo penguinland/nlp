@@ -13,18 +13,19 @@ verbRules :: [Rule]
 verbRules = intVerbRules ++ transVerbRules
 
 normalIntransitiveVerbs :: Data.Set.Set String
-normalIntransitiveVerbs = Data.Set.fromList ["ran", "run", "sleep", "went"]
+normalIntransitiveVerbs = Data.Set.fromList ["live", "ran", "run", "sleep",
+    "went"]
 
 normalTransitiveVerbs :: Data.Set.Set String
-normalTransitiveVerbs = Data.Set.fromList ["build", "chew", "eat", "found",
-    "help", "like", "love", "play", "threw", "want"]
+normalTransitiveVerbs = Data.Set.fromList ["build", "chew", "eat", "fit",
+    "found", "help", "like", "love", "play", "threw", "want"]
 
 -- Verbs where the proper conjugation of "it ___" is to add an "es" to the verb
 withEsTransitiveVerbs :: Data.Set.Set String
 withEsTransitiveVerbs = Data.Set.fromList ["brush", "catch", "boss"]
 
 withEsIntransitiveVerbs :: Data.Set.Set String
-withEsIntransitiveVerbs = Data.Set.fromList ["fuss"]
+withEsIntransitiveVerbs = Data.Set.fromList ["go", "fuss"]
 
 sameConjugation :: [VerbAttributes]
 sameConjugation = [ VerbAttributes FirstPerson  Singular Present

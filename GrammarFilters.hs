@@ -85,17 +85,19 @@ isConjunction :: Grammar -> Bool
 isConjunction (Conjunction _) = True
 isConjunction _ = False
 
--- TODO: can you have conjunctions of verbs that are not in predicates?
+-- TODO: add in conjunction support for these ("I could have and even should
+-- have done it").
 isVerbPhrase :: Grammar -> Bool
 isVerbPhrase (VerbPhrase _ _ _) = True
 isVerbPhrase _ = False
 
--- TODO: can you have conjunctions of verbs that are not in predicates?
+-- TODO: add in conjuntion support for these ("I could and probably should do
+-- that.")
 isVerbModifier :: Grammar -> Bool
 isVerbModifier (VerbModifier _) = True
 isVerbModifier _ = False
 
--- TODO: can you have conjunctions of verbs that are not in predicates?
+-- TODO: add in conjunction support for these ("I baked and frosted the cake")
 isVerb :: Grammar -> Bool
 isVerb (Verb _ _) = True
 isVerb _ = False

@@ -55,7 +55,7 @@ makePartsOfSpeech = [ makeNoun
 -- TODO: eventually split out articles and possessive adjectives, maybe?
 articles :: Data.Set.Set String
 articles = Data.Set.fromList ["a", "another", "her", "his", "my", "the",
-    "their"]
+    "their", "your"]
 makeArticle :: String -> [Node] -> [Node]
 makeArticle = makeNode articles Article articleRules
 
@@ -65,8 +65,8 @@ makeAdjective :: String -> [Node] -> [Node]
 makeAdjective = makeNode adjectives Adjective adjectiveRules
 
 prepositions :: Data.Set.Set String
-prepositions = Data.Set.fromList ["after", "in", "of", "over", "through",
-    "with"]
+prepositions = Data.Set.fromList ["after", "in", "inside", "of", "over",
+    "through", "with"]
 permissivePreposition :: PrepositionAttributes
 permissivePreposition = PrepositionAttributes True True
 makePreposition :: String -> [Node] -> [Node]
