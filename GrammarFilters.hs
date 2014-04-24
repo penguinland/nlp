@@ -100,6 +100,7 @@ isVerbModifier _ = False
 -- TODO: add in conjunction support for these ("I baked and frosted the cake")
 isVerb :: Grammar -> Bool
 isVerb (Verb _ _) = True
+isVerb (VerbPhrase _ _ _) = True
 isVerb _ = False
 
 isPreposition :: Grammar -> Bool

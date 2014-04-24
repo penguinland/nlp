@@ -42,6 +42,7 @@ transVerbRules :: [Rule]
 transVerbRules = [rawPredicateFromTransVerb]
 conjunctionRules :: [Rule]
 conjunctionRules = []  -- TODO: fill these in
+verbModifierRules = [verbPhraseFromModifier]
 prepositionRules :: [Rule]
 prepositionRules = [prepositionalPhraseFromANP]
 prepositionalPhraseRules :: [Rule]
@@ -183,6 +184,15 @@ rawPredicateFromTransVerb :: Rule
 rawPredicateFromTransVerb =
     makeRule2 isVerb isANP constTrue2 (\v n -> RawPredicate v (Just n))
         rawPredicateRules
+
+verbPhraseFromModifier :: Rule
+verbPhraseFromModifier =
+  let
+    notConjugated g = getAttrs personV g == Just OtherPerson
+    attributes = VerbAttributes AnyPerson EitherPlurality OtherTense
+  in
+    makeRule2AdoptingRules isVerbModifier (isVerb `andAlso` notConjugated)
+        constTrue2 (\a b -> VerbPhrase [a] b attributes)
 
 articledNounPhraseFromNounPhrase :: Rule
 articledNounPhraseFromNounPhrase =

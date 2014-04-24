@@ -118,6 +118,17 @@ testIesPluralNouns =
     TestCase $ assertBool "Adjectives can be conjoined"
         (isWellFormed "my baby likes the babies.")
 
+testIsEsPluralNouns :: Test
+testIsEsPluralNouns =
+    TestCase $ assertBool "Is->Es plural nouns"
+        (isWellFormed "my analysis fits with your analyses.")
+
+testLesMiserables :: Test
+testLesMiserables =
+    TestCase $ assertBool "Lyrics of On My Own from Les Mis"
+        (isText . lexNodes $
+         "the city goes to bed and I can live inside my head.")
+
 main :: IO Counts
 main = runTestTT $ TestList [ testBasicSentence
                             , testPrepositionalPhraseUnambig
@@ -139,4 +150,6 @@ main = runTestTT $ TestList [ testBasicSentence
                             , testSentenceAsQuestion
                             , testQuestionAsking
                             , testIesPluralNouns
+                            , testIsEsPluralNouns
+                            , testLesMiserables
                             ]

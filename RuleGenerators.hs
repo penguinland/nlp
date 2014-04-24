@@ -19,6 +19,21 @@ makeRule1 isCorrectGrammar toNewGrammar nextRules =
   in
     newRule
 
+-- The Rules for the new Node are the rules for the last Node merged.
+makeRule2AdoptingRules :: (Grammar -> Bool) -> (Grammar -> Bool) ->
+             (Grammar -> Grammar -> Bool) ->
+             (Grammar -> Grammar -> Grammar) -> Rule
+makeRule2AdoptingRules isCorrectGrammar1 isCorrectGrammar2 grammarsAreCompatible
+        toNewGrammar =
+  let
+    toNewNode first second = Node (toNewGrammar first second)
+    newRule (Node first _ seconds) =
+        [toNewNode first second rules next | isCorrectGrammar1 first,
+         (Node second rules next) <- seconds, isCorrectGrammar2 second,
+         grammarsAreCompatible first second]
+  in
+    newRule
+
 makeRule2 :: (Grammar -> Bool) -> (Grammar -> Bool) ->
              (Grammar -> Grammar -> Bool) ->
              (Grammar -> Grammar -> Grammar) -> [Rule] -> Rule
