@@ -199,7 +199,7 @@ nounPhraseFromAdjective =
     makeRule2 isAdjective isNounPhrase constTrue2 toNounPhrase nounPhraseRules
 
 sentenceFromSubject :: Rule
-sentenceFromSubject node =
+sentenceFromSubject =
   let
     subjectVerbAgreement :: Grammar -> Grammar -> Bool
     subjectVerbAgreement subject predicate =
@@ -217,8 +217,7 @@ sentenceFromSubject node =
         (predicateTense == Just Past) ||
         (pluralCheck == Just True && personCheck == Just True)
   in
-    makeRule2 isSubject isPredicate subjectVerbAgreement Sentence
-        sentenceRules node
+    makeRule2 isSubject isPredicate subjectVerbAgreement Sentence sentenceRules
 
 fullSentenceFromSentence :: Rule
 fullSentenceFromSentence =
