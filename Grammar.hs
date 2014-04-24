@@ -24,6 +24,8 @@ data Grammar =
                FullSentence Grammar Grammar
             -- Sentence Subject Predicate
              | Sentence Grammar Grammar
+            -- Question QuestionVerb Subject Predicate
+             | Question Grammar Grammar Grammar
             -- Subject ArticledNounPhrase
              | Subject Grammar
             -- ArticledNounPhrase (Maybe Article)

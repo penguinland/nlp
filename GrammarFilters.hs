@@ -24,6 +24,11 @@ isSentence (Sentence _ _) = True
 isSentence (ConjunctivePhrase _ _ end _) = isSentence end
 isSentence _ = False
 
+isQuestion :: Grammar -> Bool
+isQuestion (Question _ _ _) = True
+isQuestion (ConjunctivePhrase _ _ end _) = isQuestion end
+isQuestion _ = False
+
 isSubject :: Grammar -> Bool
 isSubject (Subject _) = True
 isSubject _ = False
