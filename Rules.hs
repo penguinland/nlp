@@ -2,8 +2,6 @@
 
 module Rules where
 
-import Control.Monad
-
 import Attributes
 import AttributeFilters
 import Grammar
@@ -202,23 +200,6 @@ nounPhraseFromAdjective =
 
 sentenceFromSubject :: Rule
 sentenceFromSubject =
-  let
-    subjectVerbAgreement :: Grammar -> Grammar -> Bool
-    subjectVerbAgreement subject predicate =
-      let
-        subjectPerson = getAttrs personN subject
-        subjectNumber = getAttrs pluralN subject
-        predicatePerson = getAttrs personV predicate
-        predicateNumber = getAttrs pluralV predicate
-        personCheck =
-            liftM2 compatiblePersons subjectPerson predicatePerson
-        pluralCheck =
-           liftM2 compatiblePluralities subjectNumber predicateNumber
-        predicateTense = getAttrs tense predicate
-      in
-        (predicateTense == Just Past) ||
-        (pluralCheck == Just True && personCheck == Just True)
-  in
     makeRule2 isSubject isPredicate subjectVerbAgreement Sentence sentenceRules
 
 fullSentenceFromSentence :: Rule

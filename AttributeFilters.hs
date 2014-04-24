@@ -21,6 +21,22 @@ attributeExists :: Maybe a -> Bool
 attributeExists Nothing = False
 attributeExists (Just _) = True
 
+subjectVerbAgreement :: Grammar -> Grammar -> Bool
+subjectVerbAgreement subject predicate =
+  let
+    subjectPerson = getAttrs personN subject
+    subjectNumber = getAttrs pluralN subject
+    predicatePerson = getAttrs personV predicate
+    predicateNumber = getAttrs pluralV predicate
+    personCheck =
+        liftM2 compatiblePersons subjectPerson predicatePerson
+    pluralCheck =
+        liftM2 compatiblePluralities subjectNumber predicateNumber
+    predicateTense = getAttrs tense predicate
+  in
+    (predicateTense == Just Past) ||
+    (pluralCheck == Just True && personCheck == Just True)
+
 class Attributes a where
     getAttrs :: (a -> b) -> Grammar -> Maybe b
     checkAttrs :: (a -> Bool) -> Grammar -> Bool
