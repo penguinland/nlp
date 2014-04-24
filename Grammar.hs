@@ -58,5 +58,6 @@ data Grammar =
              | Preposition String PrepositionAttributes
              | Period
              | QuestionMark
+             | ExclamationPoint
              | EOF
     deriving(Show, Eq)

@@ -115,6 +115,10 @@ isQuestionMark :: Grammar -> Bool
 isQuestionMark QuestionMark = True
 isQuestionMark _ = False
 
+isExclamationPoint :: Grammar -> Bool
+isExclamationPoint ExclamationPoint = True
+isExclamationPoint _ = False
+
 isEOF :: Grammar -> Bool
 isEOF EOF = True
 isEOF _ = False

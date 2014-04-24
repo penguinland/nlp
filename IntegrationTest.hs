@@ -116,7 +116,7 @@ testQuestionAsking =
 testIesPluralNouns :: Test
 testIesPluralNouns =
     TestCase $ assertBool "Adjectives can be conjoined"
-        (isWellFormed "my baby likes the babies.")
+        (isWellFormed "my baby likes the babies!")
 
 testIsEsPluralNouns :: Test
 testIsEsPluralNouns =

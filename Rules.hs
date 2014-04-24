@@ -240,8 +240,9 @@ questionFromVerb =
 
 fullSentenceFromSentence :: Rule
 fullSentenceFromSentence =
-    makeRule2 isSentence (isPeriod `orElse` isQuestionMark) constTrue2
-        FullSentence fullSentenceRules
+    makeRule2 isSentence
+        (isPeriod `orElse` isQuestionMark `orElse` isExclamationPoint)
+        constTrue2 FullSentence fullSentenceRules
 
 fullSentenceFromQuestion :: Rule
 fullSentenceFromQuestion =

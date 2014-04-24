@@ -28,9 +28,11 @@ lexNodes input =
 wordToNodes :: String -> [Node] -> [Node]
 wordToNodes "." next = [Node Period [] next]
 wordToNodes "?" next = [Node QuestionMark [] next]
+wordToNodes "!" next = [Node ExclamationPoint [] next]
 wordToNodes word next
   | last word == '.' = wordToNodes (init word) (wordToNodes "." next)
   | last word == '?' = wordToNodes (init word) (wordToNodes "?" next)
+  | last word == '!' = wordToNodes (init word) (wordToNodes "!" next)
   | otherwise =
       let
         result = concatMap (\f -> f word next) makePartsOfSpeech
