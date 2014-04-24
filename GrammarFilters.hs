@@ -86,6 +86,16 @@ isConjunction (Conjunction _) = True
 isConjunction _ = False
 
 -- TODO: can you have conjunctions of verbs that are not in predicates?
+isVerbPhrase :: Grammar -> Bool
+isVerbPhrase (VerbPhrase _ _ _) = True
+isVerbPhrase _ = False
+
+-- TODO: can you have conjunctions of verbs that are not in predicates?
+isVerbModifier :: Grammar -> Bool
+isVerbModifier (VerbModifier _) = True
+isVerbModifier _ = False
+
+-- TODO: can you have conjunctions of verbs that are not in predicates?
 isVerb :: Grammar -> Bool
 isVerb (Verb _ _) = True
 isVerb _ = False

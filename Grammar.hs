@@ -51,6 +51,9 @@ data Grammar =
              | Noun String NounAttributes
              | Adjective String
              | Conjunction String
+            -- VerbPhrase [VerbModifier] Verb
+             | VerbPhrase [Grammar] Grammar VerbAttributes
+             | VerbModifier String  -- examples: could, can, should, will
              | Verb String VerbAttributes
              | Preposition String PrepositionAttributes
              | Period

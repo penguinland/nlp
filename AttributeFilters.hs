@@ -63,6 +63,7 @@ instance Attributes VerbAttributes where
     getAttrs getter (Verb _ attributes) = Just $ getter attributes
     getAttrs getter (RawPredicate verb _) = getAttrs getter verb
     getAttrs getter (Predicate rawPred _) = getAttrs getter rawPred
+    getAttrs getter (VerbPhrase _ _ attributes) = Just $ getter attributes
     getAttrs getter (ConjunctivePhrase _ _ _ (VerbConjunction attrs)) =
         Just $ getter attrs
     getAttrs _ _ = Nothing
