@@ -85,12 +85,20 @@ testAdjectiveConjunction =
     TestCase $ assertBool "Adjectives can be conjoined"
         (isWellFormed "I like the blue and yellow ball.")
 
-testParagraph :: Test
-testParagraph =
-    TestCase $ assertBool "Larger texts can be parsed."
+testPastTense :: Test
+testPastTense =
+    TestCase $ assertBool "Larger texts can be parsed, past tense is supported"
         (isText . lexNodes $
          "Zac and Sam went to the store because they wanted food. Zac " ++
          "wanted ham. Sam wanted chips and dip.")
+
+testUnusualVerbs :: Test
+testUnusualVerbs =
+    TestCase $ assertBool "Unusual verbs conjugate correctly."
+        (isText . lexNodes $
+         "I do it. you do it. he does it. we do it. they do it. I did it. " ++
+         "I am it. you are it. he is it. we are it. they are it. I was it. " ++
+         "you were it. he was it. we were it. they were it.")
 
 main :: IO Counts
 main = runTestTT $ TestList [ testBasicSentence
@@ -108,5 +116,6 @@ main = runTestTT $ TestList [ testBasicSentence
                             , testPredicateConjunction
                             , testPrepPhraseConjunction
                             , testAdjectiveConjunction
-                            , testParagraph
+                            , testPastTense
+                            , testUnusualVerbs
                             ]

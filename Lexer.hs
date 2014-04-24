@@ -40,6 +40,7 @@ makePartsOfSpeech = [ makeNoun
                     , makeArticle
                     , makeIntVerb
                     , makeTransVerb
+                    , makeUnusualVerbs
                     , makeAdjective
                     , makePreposition
                     , makeMisc]

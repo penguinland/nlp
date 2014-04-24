@@ -9,12 +9,15 @@ import Grammar
 import LexerHelpers
 import Rules
 
+verbRules :: [Rule]
+verbRules = intVerbRules ++ transVerbRules
+
 normalIntransitiveVerbs :: Data.Set.Set String
 normalIntransitiveVerbs = Data.Set.fromList ["ran", "run", "sleep", "went"]
 
 normalTransitiveVerbs :: Data.Set.Set String
-normalTransitiveVerbs = Data.Set.fromList ["chew", "chew", "eat", "found",
-    "help", "like", "love", "play", "played", "threw", "want", "was"]
+normalTransitiveVerbs = Data.Set.fromList ["chew", "eat", "found",
+    "help", "like", "love", "play", "threw", "want"]
 
 -- Verbs where the proper conjugation of "it ___" is to add an "es" to the verb
 withEsTransitiveVerbs :: Data.Set.Set String
@@ -63,10 +66,52 @@ makeIntVerb word next =
 -- TODO: Can you think of a verb that *requires* a direct object?
 makeTransVerb :: String -> [Node] -> [Node]
 makeTransVerb word next =
-  let
-    verbRules = intVerbRules ++ transVerbRules
-  in
     concatMap (\s -> pastTenseVerbs s word verbRules next)
         [normalTransitiveVerbs, withEsTransitiveVerbs] ++
     concatMap (\(s, e) -> conjugateVerb s e word verbRules next)
         [(normalTransitiveVerbs, "s"), (withEsTransitiveVerbs, "es")]
+
+unusualVerbs :: Data.Set.Set String
+unusualVerbs = Data.Set.fromList ["do", "does", "did", "am", "are", "is", "was",
+    "were"]
+
+makeUnusualVerbs :: String -> [Node] -> [Node]
+makeUnusualVerbs word next =
+  let
+    makeUnusualVerbs' "do" =
+        map (\a -> Node (Verb "do" a) verbRules next) sameConjugation
+    makeUnusualVerbs' "does" =
+        [Node (Verb "does" (VerbAttributes ThirdPerson Singular Present))
+             verbRules next]
+    makeUnusualVerbs' "did" =
+        [Node (Verb "did" (VerbAttributes AnyPerson EitherPlurality Past))
+             verbRules next]
+    makeUnusualVerbs' "am" =
+        [Node (Verb "am" (VerbAttributes FirstPerson Singular Present))
+             verbRules next]
+    makeUnusualVerbs' "are" =
+        map (\(person, plural) -> Node (Verb "are"
+                                      (VerbAttributes person plural Present))
+                                      verbRules next)
+            [(SecondPerson, Singular), (FirstPerson, Plural),
+             (SecondPerson, Plural), (ThirdPerson, Plural)]
+    makeUnusualVerbs' "is" =
+        [Node (Verb "is" (VerbAttributes ThirdPerson Singular Present))
+             verbRules next]
+    makeUnusualVerbs' "was" =
+        [Node (Verb "was" (VerbAttributes FirstPerson Singular Past))
+             verbRules next,
+         Node (Verb "was" (VerbAttributes ThirdPerson Singular Past))
+             verbRules next]
+    makeUnusualVerbs' "were" =
+        map (\(person, plural) -> Node (Verb "were"
+                                      (VerbAttributes person plural Past))
+                                      verbRules next)
+            [(SecondPerson, Singular), (FirstPerson, Plural),
+             (SecondPerson, Plural), (ThirdPerson, Plural)]
+    makeUnusualVerbs' _ = error
+        "Unexpected non-unusual verb in makeUnusualVerbs'!"
+  in
+    if Data.Set.member word unusualVerbs
+    then makeUnusualVerbs' word
+    else []
