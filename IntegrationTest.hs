@@ -89,9 +89,8 @@ testParagraph :: Test
 testParagraph =
     TestCase $ assertBool "Larger texts can be parsed."
         (isText . lexNodes $
-         -- TODO: change this after support for past tense has been fixed.
          "Zac and Sam went to the store because they wanted food. Zac " ++
-         "wanteds ham. Sam wanteds chips and dip.")
+         "wanted ham. Sam wanted chips and dip.")
 
 main :: IO Counts
 main = runTestTT $ TestList [ testBasicSentence

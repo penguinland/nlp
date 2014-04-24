@@ -243,8 +243,10 @@ sentenceFromSubject node =
             (getAttrs pluralV predicate))
         personCheck = (liftM2 compatiblePersons subjectPerson
             (getAttrs personV predicate))
+        predicateTense = getAttrs tense predicate
       in
-        pluralCheck == Just True && personCheck == Just True
+        (predicateTense == Just Past) ||
+        (pluralCheck == Just True && personCheck == Just True)
   in
     makeRule2 isSubject (isPredicate `andAlso` subjectVerbAgreement)
         Sentence sentenceRules node

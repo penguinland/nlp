@@ -13,8 +13,8 @@ normalIntransitiveVerbs :: Data.Set.Set String
 normalIntransitiveVerbs = Data.Set.fromList ["ran", "run", "sleep", "went"]
 
 normalTransitiveVerbs :: Data.Set.Set String
-normalTransitiveVerbs = Data.Set.fromList ["chew", "chewed", "eat", "found",
-    "help", "like", "love", "play", "played", "threw", "wanted", "was"]
+normalTransitiveVerbs = Data.Set.fromList ["chew", "chew", "eat", "found",
+    "help", "like", "love", "play", "played", "threw", "want", "was"]
 
 -- Verbs where the proper conjugation of "it ___" is to add an "es" to the verb
 withEsTransitiveVerbs :: Data.Set.Set String
@@ -42,8 +42,21 @@ conjugateVerb list ending word rules next =
                  rules next]
         _ -> []
 
+pastTenseVerbs :: Data.Set.Set String -> String -> [Rule] -> [Node] -> [Node]
+pastTenseVerbs list word rules next =
+    case getRootFrom "ed" word of
+        Just root | Data.Set.member root list ->
+            [Node (Verb word (VerbAttributes AnyPerson EitherPlurality Past))
+                 rules next]
+        Just root | Data.Set.member (root ++ "e") list ->
+            [Node (Verb word (VerbAttributes AnyPerson EitherPlurality Past))
+                 rules next]
+        _ -> []
+
 makeIntVerb :: String -> [Node] -> [Node]
 makeIntVerb word next =
+    pastTenseVerbs normalIntransitiveVerbs word intVerbRules next ++
+    pastTenseVerbs withEsIntransitiveVerbs word intVerbRules next ++
     concatMap (\(s, e) -> conjugateVerb s e word intVerbRules next)
         [(normalIntransitiveVerbs, "s"), (withEsIntransitiveVerbs, "es")]
 
@@ -53,5 +66,7 @@ makeTransVerb word next =
   let
     verbRules = intVerbRules ++ transVerbRules
   in
+    concatMap (\s -> pastTenseVerbs s word verbRules next)
+        [normalTransitiveVerbs, withEsTransitiveVerbs] ++
     concatMap (\(s, e) -> conjugateVerb s e word verbRules next)
         [(normalTransitiveVerbs, "s"), (withEsTransitiveVerbs, "es")]
