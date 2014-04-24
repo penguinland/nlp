@@ -10,6 +10,12 @@ import Parser
 getGrammar :: Node -> Grammar
 getGrammar (Node g _ _) = g
 
+ruleCount :: Node -> Int
+ruleCount (Node _ rules _) = length rules
+
+getChildren :: Node -> [Node]
+getChildren (Node _ _ children) = children
+
 isWellFormed :: String -> Bool
 isWellFormed = (isSingleSentence `andAlso` (not . isAmbiguous)) . lexNodes
 
