@@ -8,7 +8,7 @@ import Attributes
 import Grammar
 
 liftFilter :: (Grammar -> a) -> Node -> a
-liftFilter get (Node g _ _) = get g
+liftFilter getter (Node g _ _) = getter g
 
 -- Read this type signature as (a -> Bool) -> (a -> Bool) -> a -> Bool
 andAlso :: (Monad m) => m Bool -> m Bool -> m Bool
@@ -121,27 +121,29 @@ class Attributes a where
     attributeExists (Just _) = True
 
 instance Attributes NounAttributes where
-    getAttrs get (Noun _ attributes) = Just $ get attributes
-    getAttrs get (NounPhrase _ noun) = getAttrs get noun
-    getAttrs get (ArticledNounPhrase _ nounphrase _) = getAttrs get nounphrase
-    getAttrs get (Infinitive _ _ attributes)  = Just $ get attributes
-    getAttrs get (Subject anp) = getAttrs get anp
-    getAttrs get (ConjunctivePhrase _ _ _ (NounConjunction attrs)) =
-        Just $ get attrs
+    getAttrs getter (Noun _ attributes) = Just $ getter attributes
+    getAttrs getter (NounPhrase _ noun) = getAttrs getter noun
+    getAttrs getter (ArticledNounPhrase _ nounphrase _) =
+        getAttrs getter nounphrase
+    getAttrs getter (Infinitive _ _ attributes)  = Just $ getter attributes
+    getAttrs getter (Subject anp) = getAttrs getter anp
+    getAttrs getter (ConjunctivePhrase _ _ _ (NounConjunction attrs)) =
+        Just $ getter attrs
     getAttrs _ _ = Nothing
 
 
 instance Attributes VerbAttributes where
-    getAttrs get (Verb _ attributes) = Just $ get attributes
-    getAttrs get (RawPredicate verb _) = getAttrs get verb
-    getAttrs get (Predicate rawPred _) = getAttrs get rawPred
-    getAttrs get (ConjunctivePhrase _ _ _ (VerbConjunction attrs)) =
-        Just $ get attrs
+    getAttrs getter (Verb _ attributes) = Just $ getter attributes
+    getAttrs getter (RawPredicate verb _) = getAttrs getter verb
+    getAttrs getter (Predicate rawPred _) = getAttrs getter rawPred
+    getAttrs getter (ConjunctivePhrase _ _ _ (VerbConjunction attrs)) =
+        Just $ getter attrs
     getAttrs _ _ = Nothing
 
 instance Attributes PrepositionAttributes where
-    getAttrs get (Preposition _ attributes) = Just $ get attributes
-    getAttrs get (PrepositionalPhrase preposition _) = getAttrs get preposition
-    getAttrs get (ConjunctivePhrase _ _ _ (PrepConjunction attrs)) =
-        Just $ get attrs
+    getAttrs getter (Preposition _ attributes) = Just $ getter attributes
+    getAttrs getter (PrepositionalPhrase preposition _) =
+        getAttrs getter preposition
+    getAttrs getter (ConjunctivePhrase _ _ _ (PrepConjunction attrs)) =
+        Just $ getter attrs
     getAttrs _ _ = Nothing
