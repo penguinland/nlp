@@ -2,8 +2,6 @@
 
 module RuleGenerators where
 
-import Control.Monad
-
 import Grammar
 
 -- Throw away arguments, give back True.

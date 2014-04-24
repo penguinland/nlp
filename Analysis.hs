@@ -18,7 +18,7 @@ isAmbiguous =
   let
     isAmbiguous' [Node EOF _ _] = False
     isAmbiguous' (_ : _ : _) = True
-    isAmbiguous' [Node (FullSentence _) _ children] =
+    isAmbiguous' [Node (FullSentence _ _) _ children] =
         isAmbiguous' children
     isAmbiguous' _ = True
   in
@@ -31,7 +31,7 @@ isText :: [Node] -> Bool
 isText =
   let
     isText' (Node EOF _ _) = True
-    isText' (Node (FullSentence _) _ next) = isText next
+    isText' (Node (FullSentence _ _) _ next) = isText next
     isText' _ = False
   in
     all isText' . extractSentences
@@ -41,7 +41,7 @@ isText =
 isSingleSentence' :: [Node] -> Bool
 isSingleSentence' =
   let
-    nodeIsSingleSentence' (Node (FullSentence _) _ [Node EOF _ _]) = True
+    nodeIsSingleSentence' (Node (FullSentence _ _) _ [Node EOF _ _]) = True
     nodeIsSingleSentence' _ = False
   in
     all nodeIsSingleSentence'

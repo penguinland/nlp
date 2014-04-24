@@ -223,9 +223,7 @@ sentenceFromSubject =
 
 fullSentenceFromSentence :: Rule
 fullSentenceFromSentence =
-    -- FullSentence doesn't store the period, so just gobble that argument.
-    makeRule2 isSentence isPeriod constTrue2 (const . FullSentence)
-        fullSentenceRules
+    makeRule2 isSentence isPeriod constTrue2 FullSentence fullSentenceRules
 
 predicateWithPrepositionalPhrase :: Rule
 predicateWithPrepositionalPhrase =

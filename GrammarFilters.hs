@@ -14,7 +14,7 @@ andAlso :: (Monad m) => m Bool -> m Bool -> m Bool
 andAlso = liftM2 (&&)
 
 isFullSentence :: Grammar -> Bool
-isFullSentence (FullSentence _) = True
+isFullSentence (FullSentence _ _) = True
 isFullSentence _ = False
 
 isSentence :: Grammar -> Bool

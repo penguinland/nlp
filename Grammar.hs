@@ -20,8 +20,8 @@ instance Show Node where
     show (Node g _ s) = "Node " ++ show g ++ " " ++ show s
 
 data Grammar =
-            -- FullSentence Sentence
-               FullSentence Grammar
+            -- FullSentence Sentence Punctuation
+               FullSentence Grammar Grammar
             -- Sentence Subject Predicate
              | Sentence Grammar Grammar
             -- Subject ArticledNounPhrase
