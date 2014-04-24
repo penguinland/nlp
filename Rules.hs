@@ -10,6 +10,10 @@ import Grammar
 import GrammarFilters
 import RuleGenerators
 
+-- I would like to split these lists out to a separate file, but cannot. The
+-- file with the lists would need to import the file with all the functions, and
+-- the file with all the functions would need to import the file with the lists
+-- (because the Rules create new Nodes that use these lists).
 fullSentenceRules :: [Rule]
 fullSentenceRules = []
 sentenceRules :: [Rule]
