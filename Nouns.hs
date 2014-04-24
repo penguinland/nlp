@@ -18,6 +18,10 @@ normalNouns = Data.Set.fromList ["ball", "carrot", "cat", "chips", "dip", "dog",
 pluralEsNouns :: Data.Set.Set String
 pluralEsNouns = Data.Set.fromList ["bush", "class"]
 
+-- Nouns whose plural changes a "y" to an "ies"
+pluralIesNouns :: Data.Set.Set String
+pluralIesNouns = Data.Set.fromList ["baby", "city"]
+
 -- Proper Nouns
 properNouns :: Data.Set.Set String
 properNouns = Data.Set.fromList ["Sam", "Zac"]
@@ -27,12 +31,13 @@ singularNounAttributes = NounAttributes True True Singular ThirdPerson
 pluralNounAttributes :: NounAttributes
 pluralNounAttributes = NounAttributes True True Plural ThirdPerson
 
-makeNounCase :: Data.Set.Set String -> String -> String -> [Node] -> [Node]
-makeNounCase list plural word next =
+makeNounCase :: Data.Set.Set String -> String -> String -> String -> [Node] ->
+                [Node]
+makeNounCase list plural singular word next =
     if Data.Set.member word list
     then [Node (Noun word singularNounAttributes) nounRules next]
     else case getRootFrom plural word of
-        Just root | Data.Set.member root list ->
+        Just root | Data.Set.member (root ++ singular) list ->
             [Node (Noun root pluralNounAttributes) nounRules next]
         _ -> []
 
@@ -74,5 +79,7 @@ makeNoun :: String -> [Node] -> [Node]
 makeNoun word next =
     makePronouns word next ++
     makeProperNoun word next ++
-    concatMap (\(set, plural) -> makeNounCase set plural word next)
-        [(normalNouns, "s"), (pluralEsNouns, "es")]
+    concatMap (\(set, plural, singular) ->
+               makeNounCase set plural singular word next)
+        [(normalNouns, "s", ""), (pluralEsNouns, "es", ""),
+         (pluralIesNouns, "ies", "y")]

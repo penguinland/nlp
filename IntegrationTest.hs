@@ -113,6 +113,11 @@ testQuestionAsking =
          "the yard and did they play in the yard? do you want to build a " ++
          "snowman?")
 
+testIesPluralNouns :: Test
+testIesPluralNouns =
+    TestCase $ assertBool "Adjectives can be conjoined"
+        (isWellFormed "my baby likes the babies.")
+
 main :: IO Counts
 main = runTestTT $ TestList [ testBasicSentence
                             , testPrepositionalPhraseUnambig
@@ -133,4 +138,5 @@ main = runTestTT $ TestList [ testBasicSentence
                             , testUnusualVerbs
                             , testSentenceAsQuestion
                             , testQuestionAsking
+                            , testIesPluralNouns
                             ]
