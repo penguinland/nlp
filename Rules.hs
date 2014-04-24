@@ -156,7 +156,7 @@ nounlikeAndNounlike nounlike rules =
       let
         Just attrs = getAttrs id noun
       in
-        attrs{isPluralN = True}
+        attrs{pluralN = Plural}
     conjoinNouns left conjunction right =
         ConjunctivePhrase [left] conjunction right
             (NounConjunction $ pluralize right)
@@ -182,7 +182,7 @@ infinitiveRule =
     toInfinitive to predicate =
         ArticledNounPhrase Nothing
             (Infinitive to predicate
-                 (NounAttributes True True False ThirdPerson)) []
+                 (NounAttributes True True Singular ThirdPerson)) []
     notConjugated g = getAttrs personV g == Just OtherPerson
   in
     makeRule2 isTo (isPredicate `andAlso` notConjugated) toInfinitive anpRules
@@ -234,13 +234,16 @@ sentenceFromSubject :: Rule
 sentenceFromSubject node =
   let
     subjectPerson = liftFilter (getAttrs personN) node
-    subjectNumber = liftFilter (getAttrs isPluralN) node
+    subjectNumber = liftFilter (getAttrs pluralN) node
     subjectVerbAgreement :: Grammar -> Bool
     subjectVerbAgreement predicate =
-        subjectPerson /= Nothing && subjectNumber /= Nothing &&
-        (liftM2 (||) (Just AnyPerson ==) (subjectPerson ==))
-            (getAttrs personV predicate) &&
-        subjectNumber == getAttrs isPluralV predicate
+      let
+        pluralCheck = (liftM2 compatiblePluralities subjectNumber
+            (getAttrs pluralV predicate))
+        personCheck = (liftM2 compatiblePersons subjectPerson
+            (getAttrs personV predicate))
+      in
+        pluralCheck == Just True && personCheck == Just True
   in
     makeRule2 isSubject (isPredicate `andAlso` subjectVerbAgreement)
         Sentence sentenceRules node

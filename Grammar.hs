@@ -60,9 +60,11 @@ data Person =
     FirstPerson | SecondPerson | ThirdPerson | OtherPerson | AnyPerson
     deriving (Eq, Show)
 
+data Plurality = Singular | Plural | EitherPlurality deriving (Eq, Show)
+
 data NounAttributes = NounAttributes { canBeSubject :: Bool
                                      , canBeObject :: Bool
-                                     , isPluralN :: Bool
+                                     , pluralN :: Plurality
                                      , personN :: Person } deriving (Eq)
 instance Show NounAttributes where
     show _ = ""  -- Don't bother showing the attributes when showing a Grammar
@@ -71,7 +73,7 @@ instance Show NounAttributes where
 data VerbTense = Present | Past deriving (Eq, Show)
 
 data VerbAttributes = VerbAttributes { personV :: Person
-                                     , isPluralV :: Bool
+                                     , pluralV :: Plurality
                                      , tense :: VerbTense } deriving (Eq)
 instance Show VerbAttributes where
     show _ = ""  -- Don't bother showing the attributes when showing a Grammar

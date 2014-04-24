@@ -24,9 +24,9 @@ properNouns :: Data.Set.Set String
 properNouns = Data.Set.fromList ["Sam", "Zac"]
 
 singularNounAttributes :: NounAttributes
-singularNounAttributes = NounAttributes True True False ThirdPerson
+singularNounAttributes = NounAttributes True True Singular ThirdPerson
 pluralNounAttributes :: NounAttributes
-pluralNounAttributes = NounAttributes True True True ThirdPerson
+pluralNounAttributes = NounAttributes True True Plural ThirdPerson
 
 makeNounCase :: Data.Set.Set String -> String -> String -> [Node] -> [Node]
 makeNounCase list plural word next =
@@ -45,20 +45,20 @@ makePronouns word next =
     makePronounNode subject object plural person =
         [Node (Noun word (NounAttributes
          { canBeSubject = subject, canBeObject = object,
-           isPluralN = plural, personN = person })) nounRules next]
-    makePronouns' "I"    = makePronounNode True  False False FirstPerson
-    makePronouns' "me"   = makePronounNode False True  False FirstPerson
-    makePronouns' "you"  = makePronounNode True  True  False SecondPerson ++
-                           makePronounNode True  True  True  SecondPerson
-    makePronouns' "he"   = makePronounNode True  False False ThirdPerson
-    makePronouns' "she"  = makePronounNode True  False False ThirdPerson
-    makePronouns' "it"   = makePronounNode True  True  False ThirdPerson
-    makePronouns' "him"  = makePronounNode False True  False ThirdPerson
-    makePronouns' "her"  = makePronounNode False True  False ThirdPerson
-    makePronouns' "we"   = makePronounNode True  False True  FirstPerson
-    makePronouns' "us"   = makePronounNode False True  True  FirstPerson
-    makePronouns' "they" = makePronounNode True  False True  ThirdPerson
-    makePronouns' "them" = makePronounNode False True  True  ThirdPerson
+           pluralN = plural, personN = person })) nounRules next]
+    makePronouns' "I"    = makePronounNode True  False Singular FirstPerson
+    makePronouns' "me"   = makePronounNode False True  Singular FirstPerson
+    makePronouns' "you"  = makePronounNode True  True  Singular SecondPerson ++
+                           makePronounNode True  True  Plural   SecondPerson
+    makePronouns' "he"   = makePronounNode True  False Singular ThirdPerson
+    makePronouns' "she"  = makePronounNode True  False Singular ThirdPerson
+    makePronouns' "it"   = makePronounNode True  True  Singular ThirdPerson
+    makePronouns' "him"  = makePronounNode False True  Singular ThirdPerson
+    makePronouns' "her"  = makePronounNode False True  Singular ThirdPerson
+    makePronouns' "we"   = makePronounNode True  False Plural   FirstPerson
+    makePronouns' "us"   = makePronounNode False True  Plural   FirstPerson
+    makePronouns' "they" = makePronounNode True  False Plural   ThirdPerson
+    makePronouns' "them" = makePronounNode False True  Plural   ThirdPerson
     makePronouns' _      = error ("Non-pronoun made it into makepronouns'")
   in
     if Data.Set.member word pronouns

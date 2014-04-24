@@ -23,12 +23,12 @@ withEsIntransitiveVerbs :: Data.Set.Set String
 withEsIntransitiveVerbs = Data.Set.fromList ["fuss"]
 
 sameConjugation :: [VerbAttributes]
-sameConjugation = [ VerbAttributes FirstPerson  False Present
-                  , VerbAttributes SecondPerson False Present
-                  , VerbAttributes OtherPerson  False Present
-                  , VerbAttributes FirstPerson  True  Present
-                  , VerbAttributes SecondPerson True  Present
-                  , VerbAttributes ThirdPerson  True  Present]
+sameConjugation = [ VerbAttributes FirstPerson  Singular Present
+                  , VerbAttributes SecondPerson Singular Present
+                  , VerbAttributes OtherPerson  Singular Present
+                  , VerbAttributes FirstPerson  Plural   Present
+                  , VerbAttributes SecondPerson Plural   Present
+                  , VerbAttributes ThirdPerson  Plural   Present]
 
 conjugateVerb ::
     Data.Set.Set String -> String -> String -> [Rule] -> [Node] -> [Node]
@@ -37,7 +37,7 @@ conjugateVerb list ending word rules next =
     then map (\a -> Node (Verb word a) rules next) sameConjugation
     else case getRootFrom ending word of
         Just root | Data.Set.member root list ->
-            [Node (Verb word (VerbAttributes ThirdPerson False Present))
+            [Node (Verb word (VerbAttributes ThirdPerson Singular Present))
                  rules next]
         _ -> []
 

@@ -95,6 +95,16 @@ isEOF :: Grammar -> Bool
 isEOF EOF = True
 isEOF _ = False
 
+compatiblePluralities :: Plurality -> Plurality -> Bool
+compatiblePluralities EitherPlurality _ = True
+compatiblePluralities _ EitherPlurality = True
+compatiblePluralities x y = x == y
+
+compatiblePersons :: Person -> Person -> Bool
+compatiblePersons AnyPerson _ = True
+compatiblePersons _ AnyPerson = True
+compatiblePersons x y = x == y
+
 class Attributes a where
     getAttrs :: (a -> b) -> Grammar -> Maybe b
     checkAttrs :: (a -> Bool) -> Grammar -> Bool
