@@ -223,7 +223,8 @@ sentenceFromSubject =
 
 fullSentenceFromSentence :: Rule
 fullSentenceFromSentence =
-    makeRule2 isSentence isPeriod constTrue2 FullSentence fullSentenceRules
+    makeRule2 isSentence (isPeriod `orElse` isQuestionMark) constTrue2
+        FullSentence fullSentenceRules
 
 predicateWithPrepositionalPhrase :: Rule
 predicateWithPrepositionalPhrase =

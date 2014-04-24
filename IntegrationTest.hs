@@ -100,6 +100,11 @@ testUnusualVerbs =
          "I am it. you are it. he is it. we are it. they are it. I was it. " ++
          "you were it. he was it. we were it. they were it.")
 
+testSentenceAsQuestion :: Test
+testSentenceAsQuestion =
+    TestCase $ assertBool "Sentences can be considered questions"
+        (isWellFormed "they like the blue and yellow balls?")
+
 main :: IO Counts
 main = runTestTT $ TestList [ testBasicSentence
                             , testPrepositionalPhraseUnambig
@@ -118,4 +123,5 @@ main = runTestTT $ TestList [ testBasicSentence
                             , testAdjectiveConjunction
                             , testPastTense
                             , testUnusualVerbs
+                            , testSentenceAsQuestion
                             ]

@@ -12,6 +12,8 @@ liftFilter getter (Node g _ _) = getter g
 -- Read this type signature as (a -> Bool) -> (a -> Bool) -> a -> Bool
 andAlso :: (Monad m) => m Bool -> m Bool -> m Bool
 andAlso = liftM2 (&&)
+orElse :: (Monad m) => m Bool -> m Bool -> m Bool
+orElse = liftM2 (||)
 
 isFullSentence :: Grammar -> Bool
 isFullSentence (FullSentence _ _) = True
@@ -90,6 +92,10 @@ isPreposition _ = False
 isPeriod :: Grammar -> Bool
 isPeriod Period = True
 isPeriod _ = False
+
+isQuestionMark :: Grammar -> Bool
+isQuestionMark QuestionMark = True
+isQuestionMark _ = False
 
 isEOF :: Grammar -> Bool
 isEOF EOF = True
