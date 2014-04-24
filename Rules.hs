@@ -42,6 +42,7 @@ transVerbRules :: [Rule]
 transVerbRules = [rawPredicateFromTransVerb]
 conjunctionRules :: [Rule]
 conjunctionRules = []  -- TODO: fill these in
+verbModifierRules :: [Rule]
 verbModifierRules = [verbPhraseFromModifier]
 prepositionRules :: [Rule]
 prepositionRules = [prepositionalPhraseFromANP]
