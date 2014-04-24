@@ -4,6 +4,7 @@ module Lexer where
 
 import qualified Data.Set
 
+import Attributes
 import Grammar
 import LexerHelpers
 import qualified Parser

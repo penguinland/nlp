@@ -4,6 +4,7 @@ module Rules where
 
 import Control.Monad
 
+import Attributes
 import Grammar
 import GrammarFilters
 

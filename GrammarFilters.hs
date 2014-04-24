@@ -4,6 +4,7 @@ module GrammarFilters where
 
 import Control.Monad
 
+import Attributes
 import Grammar
 
 liftFilter :: (Grammar -> a) -> Node -> a

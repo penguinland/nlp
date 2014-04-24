@@ -2,9 +2,8 @@
 
 module Nouns where
 
---import Control.Monad
-
 import qualified Data.Set
+import Attributes
 import Grammar
 import LexerHelpers
 import Rules
