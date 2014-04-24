@@ -105,6 +105,13 @@ testSentenceAsQuestion =
     TestCase $ assertBool "Sentences can be considered questions"
         (isWellFormed "they like the blue and yellow balls?")
 
+testQuestionAsking :: Test
+testQuestionAsking =
+    TestCase $ assertBool "Basic question syntax is supported"
+        (isText . lexNodes $
+         "do I play in the yard? do you play in the yard? does he play in " ++
+         " the yard and did they play in the yard?")
+
 main :: IO Counts
 main = runTestTT $ TestList [ testBasicSentence
                             , testPrepositionalPhraseUnambig
@@ -124,4 +131,5 @@ main = runTestTT $ TestList [ testBasicSentence
                             , testPastTense
                             , testUnusualVerbs
                             , testSentenceAsQuestion
+                            , testQuestionAsking
                             ]

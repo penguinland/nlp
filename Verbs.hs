@@ -79,13 +79,14 @@ makeUnusualVerbs :: String -> [Node] -> [Node]
 makeUnusualVerbs word next =
   let
     makeUnusualVerbs' "do" =
-        map (\a -> Node (Verb "do" a) verbRules next) sameConjugation
+        map (\a -> Node (Verb "do" a) (questionFromVerb : verbRules) next)
+                       sameConjugation
     makeUnusualVerbs' "does" =
         [Node (Verb "does" (VerbAttributes ThirdPerson Singular Present))
-             verbRules next]
+             (questionFromVerb : verbRules) next]
     makeUnusualVerbs' "did" =
         [Node (Verb "did" (VerbAttributes AnyPerson EitherPlurality Past))
-             verbRules next]
+             (questionFromVerb : verbRules) next]
     makeUnusualVerbs' "am" =
         [Node (Verb "am" (VerbAttributes FirstPerson Singular Present))
              verbRules next]

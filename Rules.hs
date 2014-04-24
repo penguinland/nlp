@@ -14,6 +14,9 @@ import RuleGenerators
 -- (because the Rules create new Nodes that use these lists).
 fullSentenceRules :: [Rule]
 fullSentenceRules = []
+questionRules :: [Rule]
+questionRules = [ fullSentenceFromQuestion
+                , questionAndQuestion ]
 sentenceRules :: [Rule]
 sentenceRules = [ fullSentenceFromSentence
                 , sentenceAndSentence ]
@@ -69,6 +72,16 @@ prepositionAndPreposition =
   in
     makeRule3 isPrepositionalPhrase isConjunction isPrepositionalPhrase
         prepositionsMatch conjoinPrepositions prepositionalPhraseRules
+
+-- TODO: can the thing after the conjunction be a non-question sentence?
+questionAndQuestion :: Rule
+questionAndQuestion =
+  let
+    conjoinQuestions left conjunction right =
+        ConjunctivePhrase [left] conjunction right OtherConjunction
+  in
+    makeRule3 isQuestion isConjunction isQuestion constTrue3
+        conjoinQuestions questionRules
 
 sentenceAndSentence :: Rule
 sentenceAndSentence =
@@ -202,10 +215,27 @@ sentenceFromSubject :: Rule
 sentenceFromSubject =
     makeRule2 isSubject isPredicate subjectVerbAgreement Sentence sentenceRules
 
+questionFromVerb :: Rule
+questionFromVerb =
+  let
+    questionChecksOut asker subject predicate =
+        subjectVerbAgreement subject asker &&
+        -- Note that infinitives won't show up here, because they become
+        -- nounlike and not verblike.
+        getAttrs personV predicate == Just OtherPerson
+  in
+    makeRule3
+        isVerb isSubject isPredicate questionChecksOut Question questionRules
+
 fullSentenceFromSentence :: Rule
 fullSentenceFromSentence =
     makeRule2 isSentence (isPeriod `orElse` isQuestionMark) constTrue2
         FullSentence fullSentenceRules
+
+fullSentenceFromQuestion :: Rule
+fullSentenceFromQuestion =
+    makeRule2 isQuestion isQuestionMark constTrue2 FullSentence
+        fullSentenceRules
 
 predicateWithPrepositionalPhrase :: Rule
 predicateWithPrepositionalPhrase =
