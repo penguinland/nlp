@@ -93,20 +93,10 @@ makeRule3 isCorrectGrammar1 isCorrectGrammar2 isCorrectGrammar3
   in
     newRule
 
--- This is for joining nodes together with "and"
-conjoin :: (Grammar -> Bool) -> (Grammar -> Bool) -> (Grammar -> Bool) ->
-           (Grammar -> Grammar -> Bool) ->
-           (Grammar -> Grammar -> Grammar -> Grammar) -> [Rule] -> Rule
-conjoin check1 check2 check3 grammars13Match =
-  let
-    grammarsMatch x _ y = grammars13Match x y
-  in
-    makeRule3 check1 check2 check3 grammarsMatch
-
 prepositionAndPreposition :: Rule
 prepositionAndPreposition =
   let
-    prepositionsMatch left right =
+    prepositionsMatch left _ right =
       let
         leftAttrs :: Maybe PrepositionAttributes
         leftAttrs = getAttrs id left
@@ -120,7 +110,7 @@ prepositionAndPreposition =
       in
         ConjunctivePhrase [left] conjunction right (PrepConjunction attributes)
   in
-    conjoin isPrepositionalPhrase isConjunction isPrepositionalPhrase
+    makeRule3 isPrepositionalPhrase isConjunction isPrepositionalPhrase
         prepositionsMatch conjoinPrepositions prepositionalPhraseRules
 
 sentenceAndSentence :: Rule
@@ -129,7 +119,7 @@ sentenceAndSentence =
     conjoinSentences left conjunction right =
         ConjunctivePhrase [left] conjunction right OtherConjunction
   in
-    conjoin isSentence isConjunction isSentence constTrue2
+    makeRule3 isSentence isConjunction isSentence constTrue3
         conjoinSentences sentenceRules
 
 adjectiveAndAdjective :: Rule
@@ -138,13 +128,13 @@ adjectiveAndAdjective =
     conjoinAdjectives left conjunction right =
         ConjunctivePhrase [left] conjunction right OtherConjunction
   in
-    conjoin isAdjective isConjunction isAdjective constTrue2
+    makeRule3 isAdjective isConjunction isAdjective constTrue3
         conjoinAdjectives adjectiveRules
 
 predicateAndPredicate :: Rule
 predicateAndPredicate =
   let
-    verbsMatch left right =
+    verbsMatch left _ right =
       let
         leftAttrs :: Maybe VerbAttributes
         leftAttrs = getAttrs id left
@@ -158,13 +148,13 @@ predicateAndPredicate =
       in
         ConjunctivePhrase [left] conjunction right (VerbConjunction attributes)
   in
-    conjoin isPredicate isConjunction isPredicate verbsMatch
+    makeRule3 isPredicate isConjunction isPredicate verbsMatch
         conjoinPredicates sentenceRules
 
 nounlikeAndNounlike :: (Grammar -> Bool) -> [Rule] -> Rule
 nounlikeAndNounlike nounlike rules =
   let
-    nounsMatch left right =
+    nounsMatch left _ right =
       let
         leftAttrs :: Maybe NounAttributes
         leftAttrs = getAttrs id left
@@ -181,7 +171,7 @@ nounlikeAndNounlike nounlike rules =
         ConjunctivePhrase [left] conjunction right
             (NounConjunction $ pluralize right)
   in
-     conjoin nounlike isConjunction nounlike nounsMatch conjoinNouns rules
+     makeRule3 nounlike isConjunction nounlike nounsMatch conjoinNouns rules
 
 nounAndNoun :: Rule
 nounAndNoun = nounlikeAndNounlike isNoun nounRules
