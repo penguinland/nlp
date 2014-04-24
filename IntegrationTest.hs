@@ -110,7 +110,8 @@ testQuestionAsking =
     TestCase $ assertBool "Basic question syntax is supported"
         (isText . lexNodes $
          "do I play in the yard? do you play in the yard? does he play in " ++
-         " the yard and did they play in the yard?")
+         "the yard and did they play in the yard? do you want to build a " ++
+         "snowman?")
 
 main :: IO Counts
 main = runTestTT $ TestList [ testBasicSentence

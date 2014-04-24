@@ -16,7 +16,7 @@ normalIntransitiveVerbs :: Data.Set.Set String
 normalIntransitiveVerbs = Data.Set.fromList ["ran", "run", "sleep", "went"]
 
 normalTransitiveVerbs :: Data.Set.Set String
-normalTransitiveVerbs = Data.Set.fromList ["chew", "eat", "found",
+normalTransitiveVerbs = Data.Set.fromList ["build", "chew", "eat", "found",
     "help", "like", "love", "play", "threw", "want"]
 
 -- Verbs where the proper conjugation of "it ___" is to add an "es" to the verb
