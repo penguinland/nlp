@@ -181,8 +181,9 @@ infinitiveRule =
     isTo _ = False
     toInfinitive to predicate =
         ArticledNounPhrase Nothing
-            (Infinitive to predicate (NounAttributes True True False Third)) []
-    notConjugated g = getAttrs personV g == Just Other
+            (Infinitive to predicate
+                 (NounAttributes True True False ThirdPerson)) []
+    notConjugated g = getAttrs personV g == Just OtherPerson
   in
     makeRule2 isTo (isPredicate `andAlso` notConjugated) toInfinitive anpRules
 
@@ -237,7 +238,7 @@ sentenceFromSubject node =
     subjectVerbAgreement :: Grammar -> Bool
     subjectVerbAgreement predicate =
         subjectPerson /= Nothing && subjectNumber /= Nothing &&
-        (liftM2 (||) (Just Any ==) (subjectPerson ==))
+        (liftM2 (||) (Just AnyPerson ==) (subjectPerson ==))
             (getAttrs personV predicate) &&
         subjectNumber == getAttrs isPluralV predicate
   in
