@@ -47,6 +47,12 @@ eofRules = []
 periodRules :: [Rule]
 periodRules = []
 
+-- Throw away arguments, give back True.
+constTrue2 :: a -> b -> Bool
+constTrue2 = (const . const $ True)
+constTrue3 :: a -> b -> c -> Bool
+constTrue3 = (const . const . const $ True)
+
 makeRule1 :: (Grammar -> Bool) -> (Grammar -> Grammar) -> [Rule] -> Rule
 makeRule1 isCorrectGrammar toNewGrammar nextRules =
   let
@@ -57,14 +63,17 @@ makeRule1 isCorrectGrammar toNewGrammar nextRules =
     newRule
 
 makeRule2 :: (Grammar -> Bool) -> (Grammar -> Bool) ->
+             (Grammar -> Grammar -> Bool) ->
              (Grammar -> Grammar -> Grammar) -> [Rule] -> Rule
-makeRule2 isCorrectGrammar1 isCorrectGrammar2 toNewGrammar nextRules =
+makeRule2 isCorrectGrammar1 isCorrectGrammar2 grammarsAreCompatible
+        toNewGrammar nextRules =
   let
-    toNewNode first (Node second _ next) =
+    toNewNode first second next =
         Node (toNewGrammar first second) nextRules next
     newRule (Node first _ seconds) =
-        [toNewNode first second | isCorrectGrammar1 first,
-         second <- seconds, liftFilter isCorrectGrammar2 second]
+        [toNewNode first second next | isCorrectGrammar1 first,
+         (Node second _ next) <- seconds, isCorrectGrammar2 second,
+         grammarsAreCompatible first second]
   in
     newRule
 
@@ -111,7 +120,7 @@ sentenceAndSentence =
     conjoinSentences left conjunction right =
         ConjunctivePhrase [left] conjunction right OtherConjunction
   in
-    conjoin isSentence isConjunction isSentence (const . const $ True)
+    conjoin isSentence isConjunction isSentence constTrue2
         conjoinSentences sentenceRules
 
 adjectiveAndAdjective :: Rule
@@ -120,7 +129,7 @@ adjectiveAndAdjective =
     conjoinAdjectives left conjunction right =
         ConjunctivePhrase [left] conjunction right OtherConjunction
   in
-    conjoin isAdjective isConjunction isAdjective (const . const $ True)
+    conjoin isAdjective isConjunction isAdjective constTrue2
         conjoinAdjectives adjectiveRules
 
 predicateAndPredicate :: Rule
@@ -187,7 +196,8 @@ infinitiveRule =
                  (NounAttributes True True Singular ThirdPerson)) []
     notConjugated g = getAttrs personV g == Just OtherPerson
   in
-    makeRule2 isTo (isPredicate `andAlso` notConjugated) toInfinitive anpRules
+    makeRule2 isTo (isPredicate `andAlso` notConjugated) constTrue2
+        toInfinitive anpRules
 
 predicateFromRawPredicate :: Rule
 predicateFromRawPredicate =
@@ -199,11 +209,13 @@ rawPredicateFromIntVerb =
 
 prepositionalPhraseFromANP :: Rule
 prepositionalPhraseFromANP =
-    makeRule2 isPreposition isANP PrepositionalPhrase prepositionalPhraseRules
+    makeRule2 isPreposition isANP constTrue2 PrepositionalPhrase
+        prepositionalPhraseRules
 
 rawPredicateFromTransVerb :: Rule
 rawPredicateFromTransVerb =
-    makeRule2 isVerb isANP (\v n -> RawPredicate v (Just n)) rawPredicateRules
+    makeRule2 isVerb isANP constTrue2 (\v n -> RawPredicate v (Just n))
+        rawPredicateRules
 
 articledNounPhraseFromNounPhrase :: Rule
 articledNounPhraseFromNounPhrase =
@@ -211,8 +223,8 @@ articledNounPhraseFromNounPhrase =
 
 articledNounPhraseFromArticle :: Rule
 articledNounPhraseFromArticle =
-    makeRule2 isArticle isNounPhrase (\a n -> ArticledNounPhrase (Just a) n [])
-        anpRules
+    makeRule2 isArticle isNounPhrase constTrue2
+        (\a n -> ArticledNounPhrase (Just a) n []) anpRules
 
 subjectFromANP :: Rule
 subjectFromANP =
@@ -230,32 +242,35 @@ nounPhraseFromAdjective =
     -- It's safe to use an error here; this cannot be called.
     toNounPhrase _ _ = error "Unexpected non-NounPhrase node!"
   in
-    makeRule2 isAdjective isNounPhrase toNounPhrase nounPhraseRules
+    makeRule2 isAdjective isNounPhrase constTrue2 toNounPhrase nounPhraseRules
 
 sentenceFromSubject :: Rule
 sentenceFromSubject node =
   let
-    subjectPerson = liftFilter (getAttrs personN) node
-    subjectNumber = liftFilter (getAttrs pluralN) node
-    subjectVerbAgreement :: Grammar -> Bool
-    subjectVerbAgreement predicate =
+    subjectVerbAgreement :: Grammar -> Grammar -> Bool
+    subjectVerbAgreement subject predicate =
       let
-        pluralCheck = (liftM2 compatiblePluralities subjectNumber
-            (getAttrs pluralV predicate))
-        personCheck = (liftM2 compatiblePersons subjectPerson
-            (getAttrs personV predicate))
+        subjectPerson = getAttrs personN subject
+        subjectNumber = getAttrs pluralN subject
+        predicatePerson = getAttrs personV predicate
+        predicateNumber = getAttrs pluralV predicate
+        personCheck =
+            liftM2 compatiblePersons subjectPerson predicatePerson
+        pluralCheck =
+           liftM2 compatiblePluralities subjectNumber predicateNumber
         predicateTense = getAttrs tense predicate
       in
         (predicateTense == Just Past) ||
         (pluralCheck == Just True && personCheck == Just True)
   in
-    makeRule2 isSubject (isPredicate `andAlso` subjectVerbAgreement)
-        Sentence sentenceRules node
+    makeRule2 isSubject isPredicate subjectVerbAgreement Sentence
+        sentenceRules node
 
 fullSentenceFromSentence :: Rule
 fullSentenceFromSentence =
     -- FullSentence doesn't store the period, so just gobble that argument.
-    makeRule2 isSentence isPeriod (const . FullSentence) fullSentenceRules
+    makeRule2 isSentence isPeriod constTrue2 (const . FullSentence)
+        fullSentenceRules
 
 predicateWithPrepositionalPhrase :: Rule
 predicateWithPrepositionalPhrase =
@@ -269,7 +284,8 @@ predicateWithPrepositionalPhrase =
     isAcceptablePreposition =
         isPrepositionalPhrase `andAlso` (checkAttrs canModifyVerb)
   in
-    makeRule2 isPredicate isAcceptablePreposition toPredicate predicateRules
+    makeRule2 isPredicate isAcceptablePreposition constTrue2 toPredicate
+        predicateRules
 
 anpWithPrepositionalPhrase :: Rule
 anpWithPrepositionalPhrase =
@@ -283,4 +299,4 @@ anpWithPrepositionalPhrase =
     isAcceptablePreposition =
         isPrepositionalPhrase `andAlso` (checkAttrs canModifyNoun)
   in
-    makeRule2 isANP isAcceptablePreposition toANP anpRules
+    makeRule2 isANP isAcceptablePreposition constTrue2 toANP anpRules
