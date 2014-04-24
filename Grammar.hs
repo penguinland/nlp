@@ -52,5 +52,6 @@ data Grammar =
              | Verb String VerbAttributes
              | Preposition String PrepositionAttributes
              | Period
+             | QuestionMark
              | EOF
     deriving(Show, Eq)
