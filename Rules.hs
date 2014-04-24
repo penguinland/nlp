@@ -120,7 +120,7 @@ nounlikeAndNounlike nounlike rules =
         rightAttrs :: Maybe NounAttributes
         rightAttrs = getAttrs id right
       in
-        leftAttrs == rightAttrs
+        attributeExists leftAttrs && leftAttrs == rightAttrs
     pluralize noun =
       let
         Just attrs = getAttrs id noun
@@ -135,10 +135,8 @@ nounlikeAndNounlike nounlike rules =
 nounAndNoun :: Rule
 nounAndNoun = nounlikeAndNounlike isNoun nounRules
 
--- TODO: is there ever a time to conjoin noun phrases in which they're not both
--- articled?
---nounPhraseAndNounPhrase :: Rule
---nounPhraseAndNounPhrase = nounlikeAndNounlike isNounPhrase nounPhraseRules
+nounPhraseAndNounPhrase :: Rule
+nounPhraseAndNounPhrase = nounlikeAndNounlike isNounPhrase nounPhraseRules
 
 anpAndAnp :: Rule
 anpAndAnp = nounlikeAndNounlike isANP anpRules
