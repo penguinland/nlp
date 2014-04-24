@@ -77,22 +77,31 @@ makeRule2 isCorrectGrammar1 isCorrectGrammar2 grammarsAreCompatible
   in
     newRule
 
+makeRule3 :: (Grammar -> Bool) -> (Grammar -> Bool) -> (Grammar -> Bool) ->
+             (Grammar -> Grammar -> Grammar -> Bool) ->
+             (Grammar -> Grammar -> Grammar -> Grammar) -> [Rule] -> Rule
+makeRule3 isCorrectGrammar1 isCorrectGrammar2 isCorrectGrammar3
+        grammarsAreCompatible toNewGrammar nextRules =
+  let
+    toNewNode first second third next =
+        Node (toNewGrammar first second third) nextRules next
+    newRule (Node first _ seconds) =
+        [toNewNode first second third next | isCorrectGrammar1 first,
+         (Node second _ thirds) <- seconds, isCorrectGrammar2 second,
+         (Node third _ next) <- thirds, isCorrectGrammar3 third,
+         grammarsAreCompatible first second third]
+  in
+    newRule
+
 -- This is for joining nodes together with "and"
 conjoin :: (Grammar -> Bool) -> (Grammar -> Bool) -> (Grammar -> Bool) ->
            (Grammar -> Grammar -> Bool) ->
            (Grammar -> Grammar -> Grammar -> Grammar) -> [Rule] -> Rule
-conjoin isCorrectGrammar1 isCorrectGrammar2 isCorrectGrammar3 grammars13Match
-        toNewGrammar nextRules =
+conjoin check1 check2 check3 grammars13Match =
   let
-    toNewNode first second third next =
-        Node (toNewGrammar first second third) nextRules next
-    newRule (Node firstG _ secondNs) =
-        [toNewNode firstG secondG thirdG nextNs | isCorrectGrammar1 firstG,
-         (Node secondG _ thirdNs) <- secondNs, isCorrectGrammar2 secondG,
-         (Node thirdG _ nextNs) <- thirdNs, isCorrectGrammar3 thirdG,
-         grammars13Match firstG thirdG]
+    grammarsMatch x _ y = grammars13Match x y
   in
-    newRule
+    makeRule3 check1 check2 check3 grammarsMatch
 
 prepositionAndPreposition :: Rule
 prepositionAndPreposition =
