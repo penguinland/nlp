@@ -13,8 +13,8 @@ verbRules :: [Rule]
 verbRules = intVerbRules ++ transVerbRules
 
 normalIntransitiveVerbs :: Data.Set.Set String
-normalIntransitiveVerbs = Data.Set.fromList ["live", "ran", "run", "sleep",
-    "went"]
+normalIntransitiveVerbs = Data.Set.fromList ["live", "long", "ran", "run",
+    "sleep", "went"]
 
 normalTransitiveVerbs :: Data.Set.Set String
 normalTransitiveVerbs = Data.Set.fromList ["build", "chew", "eat", "fit",
@@ -73,12 +73,20 @@ makeTransVerb word next =
         [(normalTransitiveVerbs, "s"), (withEsTransitiveVerbs, "es")]
 
 unusualVerbs :: Data.Set.Set String
-unusualVerbs = Data.Set.fromList ["do", "does", "did", "am", "are", "is", "was",
-    "were"]
+unusualVerbs = Data.Set.fromList ["am", "are", "did", "do", "does", "had",
+    "has", "have", "is", "was", "were"]
 
 makeUnusualVerbs :: String -> [Node] -> [Node]
 makeUnusualVerbs word next =
   let
+    makeUnusualVerbs' "have" =
+        map (\a -> Node (Verb "have" a) verbRules next) sameConjugation
+    makeUnusualVerbs' "has" =
+        [Node (Verb "has" (VerbAttributes ThirdPerson Singular Present))
+             verbRules next]
+    makeUnusualVerbs' "had" =
+        [Node (Verb "had" (VerbAttributes AnyPerson EitherPlurality Past))
+             verbRules next]
     makeUnusualVerbs' "do" =
         map (\a -> Node (Verb "do" a) (questionFromVerb : verbRules) next)
                        sameConjugation

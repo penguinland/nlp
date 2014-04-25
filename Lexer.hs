@@ -67,7 +67,7 @@ makeAdjective :: String -> [Node] -> [Node]
 makeAdjective = makeNode adjectives Adjective adjectiveRules
 
 prepositions :: Data.Set.Set String
-prepositions = Data.Set.fromList ["after", "in", "inside", "of", "over",
+prepositions = Data.Set.fromList ["after", "for", "in", "inside", "of", "over",
     "through", "with"]
 permissivePreposition :: PrepositionAttributes
 permissivePreposition = PrepositionAttributes True True

@@ -19,6 +19,7 @@ questionRules = [ fullSentenceFromQuestion
                 , questionAndQuestion ]
 sentenceRules :: [Rule]
 sentenceRules = [ fullSentenceFromSentence
+                , danglingPrepositionalPhraseFromSentence
                 , sentenceAndSentence ]
 subjectRules :: [Rule]
 subjectRules = [ sentenceFromSubject ]
@@ -179,6 +180,19 @@ rawPredicateFromIntVerb =
 prepositionalPhraseFromANP :: Rule
 prepositionalPhraseFromANP =
     makeRule2 isPreposition isANP constTrue2 PrepositionalPhrase
+        prepositionalPhraseRules
+
+danglingPrepositionalPhraseFromSentence :: Rule
+danglingPrepositionalPhraseFromSentence =
+    makeRule2 isSentence isPreposition constTrue2 (flip PrepositionalPhrase)
+        prepositionalPhraseRules
+
+-- This is wrong; you'll need a "that" or "which" or "whom" or something in
+-- there.
+-- TODO: fix this and then start using it in a list of rules.
+prepositionalPhraseFromSentence :: Rule
+prepositionalPhraseFromSentence =
+    makeRule2 isPreposition isSentence constTrue2 PrepositionalPhrase
         prepositionalPhraseRules
 
 rawPredicateFromTransVerb :: Rule

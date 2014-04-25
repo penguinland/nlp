@@ -129,6 +129,12 @@ testLesMiserables =
         (isText . lexNodes $
          "the city goes to bed and I can live inside my head.")
 
+testDanglingPrepositions :: Test
+testDanglingPrepositions =
+    TestCase $ assertBool "Dangling prepositions can be parsed"
+        (isAmbiguousSentence
+         "the store I went to had the carrots I longed for.")
+
 main :: IO Counts
 main = runTestTT $ TestList [ testBasicSentence
                             , testPrepositionalPhraseUnambig
@@ -152,4 +158,5 @@ main = runTestTT $ TestList [ testBasicSentence
                             , testIesPluralNouns
                             , testIsEsPluralNouns
                             , testLesMiserables
+                            , testDanglingPrepositions
                             ]
