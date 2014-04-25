@@ -7,6 +7,17 @@ import GrammarFilters
 import Lexer
 import Parser
 
+-- This class lets us analyze strings of text or their Node representation using
+-- the same functions.
+class Analyzable a where
+    toNodes :: [a] -> [Node]
+
+instance Analyzable Char where
+    toNodes = Lexer.lexNodes
+
+instance Analyzable Node where
+    toNodes = id
+
 getGrammar :: Node -> Grammar
 getGrammar (Node g _ _) = g
 
@@ -16,10 +27,10 @@ ruleCount (Node _ rules _) = length rules
 getChildren :: Node -> [Node]
 getChildren (Node _ _ children) = children
 
-isWellFormed :: String -> Bool
-isWellFormed = (isSingleSentence `andAlso` (not . isAmbiguous)) . lexNodes
+isWellFormed :: (Analyzable a) => [a] -> Bool
+isWellFormed = (isSingleSentence `andAlso` (not . isAmbiguous)) . toNodes
 
-isAmbiguous :: [Node] -> Bool
+isAmbiguous :: (Analyzable a) => [a] -> Bool
 isAmbiguous =
   let
     isAmbiguous' [Node EOF _ _] = False
@@ -28,29 +39,29 @@ isAmbiguous =
         isAmbiguous' children
     isAmbiguous' _ = True
   in
-    isAmbiguous' . extractSentences
+    isAmbiguous' . extractSentences . toNodes
 
-isSingleSentence :: [Node] -> Bool
-isSingleSentence = isSingleSentence' . extractSentences
+isSingleSentence :: (Analyzable a) => [a] -> Bool
+isSingleSentence = isSingleSentence' . extractSentences . toNodes
 
-isText :: [Node] -> Bool
+isText :: (Analyzable a) => [a] -> Bool
 isText =
   let
     isText' (Node EOF _ _) = True
     isText' (Node (FullSentence _ _) _ next) = isText next
     isText' _ = False
   in
-    all isText' . extractSentences
+    all isText' . extractSentences . toNodes
 
 -- Note: it's okay if the sentence is ambiguous, as long as all possible parses
 -- result in a single sentence.
-isSingleSentence' :: [Node] -> Bool
+isSingleSentence' :: (Analyzable a) => [a] -> Bool
 isSingleSentence' =
   let
     nodeIsSingleSentence' (Node (FullSentence _ _) _ [Node EOF _ _]) = True
     nodeIsSingleSentence' _ = False
   in
-    all nodeIsSingleSentence'
+    all nodeIsSingleSentence' . toNodes
 
 -- I've gotten some example text appropriate for first grade reading levels from
 -- http://www.superteacherworksheets.com/1st-comprehension.html
