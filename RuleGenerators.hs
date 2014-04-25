@@ -30,7 +30,7 @@ makeRule2ArbitraryRules makeNewRules isCorrectGrammar1 isCorrectGrammar2
     newRule firstNode@(Node first _ seconds) =
         [toNewNode first second (makeNewRules firstNode secondNode) next |
          isCorrectGrammar1 first,
-         secondNode@(Node second rules next) <- seconds,
+         secondNode@(Node second _ next) <- seconds,
          isCorrectGrammar2 second,
          grammarsAreCompatible first second]
   in

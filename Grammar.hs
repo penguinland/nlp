@@ -24,8 +24,8 @@ data Grammar =
                FullSentence Grammar Grammar
             -- Sentence Subject Predicate
              | Sentence Grammar Grammar
-            -- Question QuestionVerb Subject Predicate
-             | Question Grammar Grammar Grammar
+            -- Question (Maybe QuestionModifier) QuestionVerb Subject Predicate
+             | Question (Maybe Grammar) Grammar Grammar Grammar
             -- Subject ArticledNounPhrase
              | Subject Grammar
             -- ArticledNounPhrase (Maybe Article)
@@ -56,6 +56,7 @@ data Grammar =
              | VerbModifier String  -- examples: could, can, should, will
              | Verb String VerbAttributes
              | Preposition String PrepositionAttributes
+             | QuestionModifier String -- examples: who, why, how
              | Period
              | QuestionMark
              | ExclamationPoint

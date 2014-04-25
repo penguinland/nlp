@@ -25,7 +25,7 @@ isSentence (ConjunctivePhrase _ _ end _) = isSentence end
 isSentence _ = False
 
 isQuestion :: Grammar -> Bool
-isQuestion (Question _ _ _) = True
+isQuestion (Question _ _ _ _) = True
 isQuestion (ConjunctivePhrase _ _ end _) = isQuestion end
 isQuestion _ = False
 
@@ -106,6 +106,10 @@ isVerb _ = False
 isPreposition :: Grammar -> Bool
 isPreposition (Preposition _ _) = True
 isPreposition _ = False
+
+isQuestionModifier :: Grammar -> Bool
+isQuestionModifier (QuestionModifier _) = True
+isQuestionModifier _ = False
 
 isPeriod :: Grammar -> Bool
 isPeriod Period = True

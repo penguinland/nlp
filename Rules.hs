@@ -249,8 +249,8 @@ questionFromVerb =
         -- nounlike and not verblike.
         getAttrs personV predicate == Just OtherPerson
   in
-    makeRule3
-        isVerb isSubject isPredicate questionChecksOut Question questionRules
+    makeRule3 isVerb isSubject isPredicate questionChecksOut
+        (Question Nothing) questionRules
 
 fullSentenceFromSentence :: Rule
 fullSentenceFromSentence =
