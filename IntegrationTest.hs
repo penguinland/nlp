@@ -4,11 +4,10 @@ module Main where
 
 import Analysis
 import GrammarFilters
-import Lexer
 import Test.HUnit
 
 isAmbiguousSentence :: String -> Bool
-isAmbiguousSentence = (isSingleSentence `andAlso` (isAmbiguous)) . lexNodes
+isAmbiguousSentence = (isSingleSentence `andAlso` (isAmbiguous))
 
 testBasicSentence :: Test
 testBasicSentence =
@@ -43,12 +42,12 @@ testConjugation2 =
 testConjugation3 :: Test
 testConjugation3 =
     TestCase $ assertBool "Conjugation: incorrect third person singular"
-        (not . isSingleSentence . lexNodes $ "my dog like to run.")
+        (not . isSingleSentence $ "my dog like to run.")
 
 testConjugation4 :: Test
 testConjugation4 =
     TestCase $ assertBool "Conjugation: incorrect third person plural"
-        (not . isSingleSentence . lexNodes $ "my dogs likes to run.")
+        (not . isSingleSentence $ "my dogs likes to run.")
 
 testPluralNouns :: Test
 testPluralNouns =
@@ -63,7 +62,7 @@ testVerbEsConjugation =
 testNounConjugation :: Test
 testNounConjugation =
     TestCase $ assertBool "Nouns can be conjoined"
-        (isSingleSentence . lexNodes $ "the dog and cat play in the yard.")
+        (isSingleSentence "the dog and cat play in the yard.")
 
 testWhen :: Test
 testWhen =
@@ -88,14 +87,14 @@ testAdjectiveConjunction =
 testPastTense :: Test
 testPastTense =
     TestCase $ assertBool "Larger texts can be parsed, past tense is supported"
-        (isText . lexNodes $
+        (isText $
          "Zac and Sam went to the store because they wanted food. Zac " ++
          "wanted ham. Sam wanted chips and dip.")
 
 testUnusualVerbs :: Test
 testUnusualVerbs =
     TestCase $ assertBool "Unusual verbs conjugate correctly."
-        (isText . lexNodes $
+        (isText $
          "I do it. you do it. he does it. we do it. they do it. I did it. " ++
          "I am it. you are it. he is it. we are it. they are it. I was it. " ++
          "you were it. he was it. we were it. they were it.")
@@ -108,7 +107,7 @@ testSentenceAsQuestion =
 testQuestionAsking :: Test
 testQuestionAsking =
     TestCase $ assertBool "Basic question syntax is supported"
-        (isText . lexNodes $
+        (isText $
          "do I play in the yard? do you play in the yard? does he play in " ++
          "the yard and did they play in the yard? do you want to build a " ++
          "snowman?")
@@ -126,7 +125,7 @@ testIsEsPluralNouns =
 testLesMiserables :: Test
 testLesMiserables =
     TestCase $ assertBool "Lyrics of On My Own from Les Mis"
-        (isText . lexNodes $
+        (isText
          "the city goes to bed and I can live inside my head.")
 
 testDanglingPrepositions :: Test
