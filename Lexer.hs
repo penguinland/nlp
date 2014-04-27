@@ -10,6 +10,7 @@ import LexerHelpers
 import qualified Parser
 import Rules
 
+import Contractions
 import Nouns
 import Verbs
 
@@ -19,11 +20,9 @@ lexNodes input =
     -- TODO: get a smarter way of splitting things up
     text = words input
     end = Node EOF [] [end]
-    toNodes [] = [end]
-    toNodes (word : rest) =
-        Parser.applyAllRules $ wordToNodes word (toNodes rest)
+    folder word rest = Parser.applyAllRules (wordToNodes word rest)
   in
-    toNodes text
+    foldr folder [end] text
 
 wordToNodes :: String -> [Node] -> [Node]
 wordToNodes "." next = [Node Period [] next]
@@ -47,7 +46,9 @@ makePartsOfSpeech = [ makeNoun
                     , makeUnusualVerbs
                     , makeAdjective
                     , makePreposition
-                    , makeMisc]
+                    , makeContraction Parser.applyAllRules wordToNodes
+                    , makeMisc
+                    ]
 
 -- Yes, I know that many of these are possessive adjectives and not articles.
 -- However, they act like articles, so that's what I'm going to call it here. In
@@ -88,4 +89,9 @@ makeMisc "and" next = [Node (Conjunction "and") conjunctionRules next]
 makeMisc "when" next = [Node (Conjunction "when") conjunctionRules next]
 makeMisc "because" next = [Node (Conjunction "because") conjunctionRules next]
 makeMisc "can" next = [Node (VerbModifier "can") verbModifierRules next]
+makeMisc "would" next = [Node (VerbModifier "would") verbModifierRules next]
+-- TODO: fix this, since "not" is much more complicated and can't be used in all
+-- the same places that "would" and "can" can be.
+makeMisc "not" next = [Node (VerbModifier "not") verbModifierRules next]
+makeMisc "have" next = [Node (VerbModifier "have") verbModifierRules next]
 makeMisc _ _ = []

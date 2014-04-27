@@ -48,13 +48,19 @@ conjugateVerb list ending word rules next =
 
 pastTenseVerbs :: Data.Set.Set String -> String -> [Rule] -> [Node] -> [Node]
 pastTenseVerbs list word rules next =
+  let
+    pastTenseNodes =
+            [ Node (Verb word (VerbAttributes AnyPerson EitherPlurality Past))
+                 rules next
+            -- This is for other past-like tenses, such as "could have lived"
+            -- TODO: revisit this when more tenses are supported.
+            , Node (Verb word (VerbAttributes OtherPerson EitherPlurality Past))
+                 rules next
+            ]
+  in
     case getRootFrom "ed" word of
-        Just root | Data.Set.member root list ->
-            [Node (Verb word (VerbAttributes AnyPerson EitherPlurality Past))
-                 rules next]
-        Just root | Data.Set.member (root ++ "e") list ->
-            [Node (Verb word (VerbAttributes AnyPerson EitherPlurality Past))
-                 rules next]
+        Just root | Data.Set.member root list -> pastTenseNodes
+        Just root | Data.Set.member (root ++ "e") list -> pastTenseNodes
         _ -> []
 
 makeIntVerb :: String -> [Node] -> [Node]

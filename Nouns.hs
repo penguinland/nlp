@@ -48,8 +48,9 @@ makeNounCase list plural singular word next =
 makePronouns :: String -> [Node] -> [Node]
 makePronouns word next =
   let
-    pronouns = Data.Set.fromList ["I", "me", "you", "he", "she", "it", "him",
-                                  "her", "we", "us", "they", "them"]
+    pronouns = Data.Set.fromList
+        ["I", "me", "you", "he", "she", "it", "him", "her", "we", "us", "they",
+         "them", "who", "whom"]
     makePronounNode subject object plural person =
         [Node (Noun word (NounAttributes
          { canBeSubject = subject, canBeObject = object,

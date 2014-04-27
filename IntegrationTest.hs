@@ -134,6 +134,12 @@ testDanglingPrepositions =
         (isAmbiguousSentence
          "the store I went to had the carrots I longed for.")
 
+testContractions :: Test
+testContractions =
+    TestCase $ assertBool "Contractions can be parsed"
+        (isText
+         "I'm in the yard. you're inside my head. I wouldn't've lived.")
+
 main :: IO Counts
 main = runTestTT $ TestList [ testBasicSentence
                             , testPrepositionalPhraseUnambig
@@ -158,4 +164,5 @@ main = runTestTT $ TestList [ testBasicSentence
                             , testIsEsPluralNouns
                             , testLesMiserables
                             , testDanglingPrepositions
+                            , testContractions
                             ]

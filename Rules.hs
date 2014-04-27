@@ -206,7 +206,10 @@ verbPhraseFromModifier =
     notConjugated g = getAttrs personV g == Just OtherPerson
     attributes = VerbAttributes AnyPerson EitherPlurality OtherTense
   in
-    makeRule2AdoptingRules isVerbModifier (isVerb `andAlso` notConjugated)
+    -- TODO: remove verb modifiers and go through the actual tenses for
+    -- realsies. There are only a handful of them; it shouldn't be that hard.
+    makeRule2AdoptingRules isVerbModifier
+        (isVerbPhrase `orElse` (isVerb `andAlso` notConjugated))
         constTrue2 (\a b -> VerbPhrase [a] b attributes)
 
 articledNounPhraseFromNounPhrase :: Rule
