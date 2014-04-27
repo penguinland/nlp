@@ -1,0 +1,28 @@
+When you add support for a tense, add support for its negation and its question
+at the same time.
+
+See https://en.wikipedia.org/wiki/English_modal_verb FMI.
+
+Things to make sure to get eventually:
+I will think (shall, might, can, could, should, would)
+  I will not think
+  Will I think?
+I will be thinking
+  I will not be thinking
+  Will I be thinking?
+I am thinking
+  I am not thinking
+  Am I not thinking? Aren't I thinking?
+I have thought
+  I have not thought
+  Have I not thought? Haven't I thought?
+I am going to think
+  I am not going to think
+  Am I going to think?
+I am going to be thinking
+  I am not going to be thinking
+  Am I going to be thinking?
+Think! (command)
+I did think (I do think)
+  I did not think
+  Did I think?
